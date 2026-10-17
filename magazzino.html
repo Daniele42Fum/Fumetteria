@@ -4508,11 +4508,11 @@ window.fbSync = (() => {
     if (started) return;
     started = true;
     const { collection, onSnapshot, query, orderBy, limit } = fs;
-    onSnapshot(collection(db, 'products'), snap => {
+    onSnapshot(collection(db, 'products'), { includeMetadataChanges: true }, snap => {
       applyRemoteProducts(snap);
       ready = true;
       pushChanges(); pushLog();
-      status(snap.metadata.fromCache ? 'Offline (in attesa)' : 'Sincronizzato');
+      status(snap.metadata.fromCache ? 'In attesa del server…' : 'Sincronizzato');
     }, err => status('Errore: ' + err.code));
     onSnapshot(query(collection(db, 'movements'), orderBy('ts', 'desc'), limit(500)), applyRemoteLog, () => {});
   }
