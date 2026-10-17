@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ComicStock</title>
+<link rel="manifest" href="manifest-telefono.json"><meta name="theme-color" content="#0f172a">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#0f172a;padding-bottom:90px}
+header{position:sticky;top:0;z-index:20;background:#0f172a;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.logo{font-weight:800;letter-spacing:.5px}.logo span{color:#60a5fa}
+.pill{background:#1e293b;border-radius:14px;padding:5px 11px;font-size:.78rem;cursor:pointer}
+.bar{display:flex;gap:8px;margin-top:10px}
+.bar input{flex:1;min-width:0;padding:12px;border-radius:10px;border:0;font-size:1rem}
+.btn{border:0;border-radius:10px;padding:12px 14px;font-size:1rem;font-weight:600;background:#2563eb;color:#fff}
+.btn.sec{background:#e2e8f0;color:#0f172a}
+.chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
+.chip{flex:none;border:0;border-radius:16px;padding:7px 13px;font-size:.82rem;background:#1e293b;color:#cbd5e1}
+.chip.on{background:#2563eb;color:#fff}
+main{padding:10px 12px}
+.card{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:11px 12px;margin-bottom:9px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.info{flex:1;min-width:0}.nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.meta{font-size:.76rem;color:#64748b;margin-top:2px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:42px;height:42px;border-radius:10px;border:0;font-size:1.4rem;font-weight:700;background:#e2e8f0}
+.qty b{min-width:34px;text-align:center;font-size:1.25rem}
+.low b{color:#d97706}.out b{color:#dc2626}
+.empty{text-align:center;color:#64748b;padding:30px 10px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:#2563eb;color:#fff;font-size:2rem;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:15}
+.sheet{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:50;align-items:flex-end}
+.sheet.open{display:flex}
+.panel{background:#fff;width:100%;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.panel label{display:block;font-size:.78rem;font-weight:600;margin:10px 0 3px}
+.panel input,.panel select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;font-size:1rem}
+.row{display:flex;gap:8px}.row>*{flex:1}
+video{width:100%;border-radius:12px;background:#000;max-height:60vh}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99;max-width:90%}
+#toast.show{opacity:1}
+</style></head><body>
+<header>
+  <div class="top"><div class="logo"><span>COMIC</span>STOCK</div>
+  <div class="pill" onclick="fbSync.openModal()">☁️ <span id="fbStatus">Non collegato</span></div></div>
+  <div class="bar"><input id="q" type="search" placeholder="Cerca nome o codice…" oninput="renderTable()"><button class="btn" onclick="scanSearch()">📷</button></div>
+  <div class="chips" id="chips"></div>
+</header>
+<main id="list"></main>
+<button class="fab" onclick="openAdd()" aria-label="Aggiungi prodotto">＋</button>
+
+<div class="sheet" id="addSheet" onclick="if(event.target===this)closeAdd()"><div class="panel">
+  <div style="font-weight:700;font-size:1.1rem">Nuovo prodotto</div>
+  <label>Codice a barre</label><div class="row"><input id="a-bc" inputmode="numeric" placeholder="ISBN / EAN"><button class="btn sec" style="flex:none" onclick="scan(c=>{$('a-bc').value=c})">📷</button></div>
+  <label>Nome *</label><input id="a-nome">
+  <label>Categoria</label><select id="a-cat"></select>
+  <div class="row"><div><label>Quantità</label><input id="a-qta" type="number" inputmode="numeric" value="1" min="0"></div>
+  <div><label>Prezzo €</label><input id="a-prezzo" type="number" inputmode="decimal" step="0.01"></div>
+  <div><label>Costo €</label><input id="a-costo" type="number" inputmode="decimal" step="0.01"></div></div>
+  <div class="row" style="margin-top:14px"><button class="btn sec" onclick="closeAdd()">Annulla</button><button class="btn" onclick="saveAdd()">Salva</button></div>
+</div></div>
+
+<div class="sheet" id="scanSheet"><div class="panel"><video id="vid" playsinline muted></video>
+  <div style="text-align:center;margin:8px 0;color:#64748b;font-size:.85rem">Inquadra il codice a barre</div>
+  <button class="btn sec" style="width:100%" onclick="stopScan()">Chiudi</button></div></div>
+
+<div id="fbOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)fbSync.closeModal()">
+  <div style="background:#fff;color:#0f172a;border-radius:12px;max-width:560px;width:100%;max-height:92vh;overflow:auto;padding:20px;font-family:'DM Sans',sans-serif">
+    <div style="font-weight:700;font-size:1.05rem;margin-bottom:4px">☁️ Sincronizzazione Firebase</div>
+    <div style="font-size:.8rem;color:#64748b;margin-bottom:14px">Stato: <b id="fbStatus2">Non collegato</b>. Usa gli stessi dati su telefono e PC: collega ogni dispositivo con le stesse chiavi e lo stesso utente.</div>
+    <label style="font-size:.78rem;font-weight:600">1. Incolla qui le chiavi Firebase (il blocco <code>firebaseConfig</code>)</label>
+    <textarea id="fbCfg" rows="8" placeholder='const firebaseConfig = {&#10;  apiKey: "...",&#10;  authDomain: "...",&#10;  projectId: "...",&#10;  storageBucket: "...",&#10;  messagingSenderId: "...",&#10;  appId: "..."&#10;};' style="width:100%;margin:4px 0 12px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;font-family:'DM Mono',monospace;font-size:.76rem"></textarea>
+    <label style="font-size:.78rem;font-weight:600">2. Email e password dell'utente creato in Firebase</label>
+    <div style="display:flex;gap:8px;margin:4px 0 12px;flex-wrap:wrap">
+      <input id="fbEmail" type="email" placeholder="email" autocomplete="username" style="flex:1;min-width:160px;padding:8px;border:1px solid #cbd5e1;border-radius:8px">
+      <input id="fbPass" type="password" placeholder="password" autocomplete="current-password" style="flex:1;min-width:160px;padding:8px;border:1px solid #cbd5e1;border-radius:8px">
+    </div>
+    <label style="font-size:.78rem;font-weight:600">3. Nome di questo dispositivo (appare nello storico)</label>
+    <input id="fbDev" type="text" placeholder="es. PC negozio, Telefono" maxlength="30" style="width:100%;margin:4px 0 14px;padding:8px;border:1px solid #cbd5e1;border-radius:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="fbSync.connect()">Salva e collega</button>
+      <button class="btn btn-secondary" onclick="fbSync.disconnect()">Scollega</button>
+      <button class="btn btn-secondary" style="margin-left:auto" onclick="fbSync.closeModal()">Chiudi</button>
+    </div>
+    <div style="font-size:.74rem;color:#64748b;margin-top:12px">La password non viene salvata: Firebase mantiene l'accesso su questo dispositivo. Scollegando, i dati già presenti qui restano.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+const catLabel={fumetti:'📚 Fumetti',manga:'🇯🇵 Manga',tcg:'🃏 TCG',gadget:'🎁 Gadget',alimenti:'🍕 Alimenti',funko:'🎭 Funko Pop!',tavolo:'🎲 Giochi da tavolo',statuine:'🗿 Statuine',giochi:'🎮 Giochi',altro:'📦 Altro'};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+let products=[],scalaLog=[];
+try{products=JSON.parse(localStorage.getItem('fumetteria_products')||'[]');scalaLog=JSON.parse(localStorage.getItem('fumetteria_scala_log')||'[]');}catch(e){}
+function save(){localStorage.setItem('fumetteria_products',JSON.stringify(products));if(window.fbSync)window.fbSync.schedule();}
+function saveLog(){localStorage.setItem('fumetteria_scala_log',JSON.stringify(scalaLog));if(window.fbSync)window.fbSync.schedule();}
+function logMovimento(p,qty,src,tipo){const q=Math.abs(Math.round(Number(qty)||0));if(!q)return;
+  scalaLog.unshift({ts:new Date().toISOString(),productId:p.id,barcode:p.barcode||'',nome:p.nome,categoria:p.categoria,delta:q,src,tipo});saveLog();}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+
+let filt='all';
+function setFilt(f){filt=f;renderTable();}
+function renderTable(){
+  const q=$('q').value.trim().toLowerCase();
+  const low=products.filter(p=>p.qta>0&&p.qta<=5).length,out=products.filter(p=>!(p.qta>0)).length;
+  $('chips').innerHTML=[['all','Tutti ('+products.length+')'],['low','⚠️ Scorte basse ('+low+')'],['out','❌ Esauriti ('+out+')']]
+    .map(c=>`<button class="chip ${filt===c[0]?'on':''}" onclick="setFilt('${c[0]}')">${c[1]}</button>`).join('');
+  let r=products.filter(p=>!q||String(p.nome).toLowerCase().includes(q)||String(p.barcode||'').includes(q));
+  if(filt==='low')r=r.filter(p=>p.qta>0&&p.qta<=5);else if(filt==='out')r=r.filter(p=>!(p.qta>0));
+  r.sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'it',{sensitivity:'base'}));
+  const shown=r.slice(0,150);
+  $('list').innerHTML=shown.length?shown.map(p=>{const n=Number(p.qta)||0;
+    return `<div class="card ${n<=0?'out':n<=5?'low':''}"><div class="info"><div class="nm">${esc(p.nome)}</div>
+    <div class="meta">${esc(catLabel[p.categoria]||'')}${p.barcode?' · '+esc(p.barcode):''}${p.prezzo!=null&&p.prezzo!==''?' · €'+Number(p.prezzo).toFixed(2):''}</div></div>
+    <div class="qty"><button onclick="adj('${p.id}',-1)">−</button><b>${n}</b><button onclick="adj('${p.id}',1)">+</button></div></div>`;}).join('')
+    +(r.length>150?`<div class="empty">Mostrati i primi 150 su ${r.length}: affina la ricerca.</div>`:'')
+    :`<div class="empty">${products.length?'Nessun prodotto trovato.':'Nessun prodotto. Collega la sincronizzazione (☁️) oppure aggiungine uno con ＋.'}</div>`;
+}
+function adj(id,d){const p=products.find(x=>x.id===id);if(!p)return;
+  const prima=Number(p.qta)||0,dopo=Math.max(0,prima+d);if(dopo===prima)return;
+  p.qta=dopo;logMovimento(p,dopo-prima,'telefono',dopo>prima?'entrata':'uscita');save();renderTable();}
+
+// scanner
+let stream=null,scanning=false;
+async function scan(cb){
+  if(!('BarcodeDetector' in window)){alert('Questo telefono/browser non supporta lo scanner. Scrivi il codice a mano.');return;}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}catch(e){alert('Fotocamera non disponibile ('+e.name+'). Controlla i permessi.');return;}
+  const v=$('vid');v.srcObject=stream;await v.play();$('scanSheet').classList.add('open');scanning=true;
+  const det=new BarcodeDetector();
+  const tick=async()=>{if(!scanning)return;try{const r=await det.detect(v);if(r.length){const c=r[0].rawValue;stopScan();cb(c);return;}}catch(e){}setTimeout(tick,200);};tick();
+}
+function stopScan(){scanning=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('scanSheet').classList.remove('open');}
+function scanSearch(){scan(code=>{$('q').value=code;renderTable();
+  if(!products.some(p=>String(p.barcode)===code)&&confirm('Codice '+code+' non presente. Aggiungere un nuovo prodotto?')){openAdd(code);}});}
+
+// aggiunta
+$('a-cat').innerHTML=Object.entries(catLabel).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+function openAdd(code){['a-bc','a-nome','a-prezzo','a-costo'].forEach(i=>$(i).value='');$('a-bc').value=code||'';$('a-qta').value=1;$('addSheet').classList.add('open');}
+function closeAdd(){$('addSheet').classList.remove('open');}
+function saveAdd(){
+  const nome=$('a-nome').value.trim(),barcode=$('a-bc').value.trim(),qta=Math.max(0,parseInt($('a-qta').value)||0);
+  if(!nome){alert('Scrivi il nome del prodotto.');return;}
+  const dup=barcode&&products.find(p=>String(p.barcode)===barcode);
+  if(dup){if(confirm('«'+dup.nome+'» è già in magazzino con questo codice. Aggiungere '+qta+' pz a quello esistente?')){
+    dup.qta=(Number(dup.qta)||0)+qta;logMovimento(dup,qta,'telefono','entrata');save();closeAdd();renderTable();}return;}
+  const n=v=>{const x=parseFloat(v);return isNaN(x)?0:x;};
+  const nuovo={id:uid(),barcode,nome,categoria:$('a-cat').value,iva:22,qta,costo:n($('a-costo').value),prezzo:n($('a-prezzo').value),note:'',imgUrl:'',dataIns:new Date().toISOString()};
+  products.push(nuovo);if(qta>0)logMovimento(nuovo,qta,'nuovo','entrata');save();closeAdd();renderTable();toast('Prodotto aggiunto');
+}
+renderTable();
+// ── SINCRONIZZAZIONE FIREBASE (prodotti + movimenti) ─────────────────────────
+window.fbSync = (() => {
+  const CFG_KEY = 'fumetteria_fb_config', SHADOW_KEY = 'fumetteria_fb_shadow', DEV_KEY = 'fumetteria_fb_device';
+  const KEYS = ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'];
+  const base = 'https://www.gstatic.com/firebasejs/10.14.1/';
+  let fs = null, authM = null, db = null, auth = null, started = false, ready = false, applying = false, timer = null;
+  let shadow = {};
+  try { shadow = JSON.parse(localStorage.getItem(SHADOW_KEY) || '{}'); } catch (e) {}
+  const $ = id => document.getElementById(id);
+  const getCfg = () => { try { return JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); } catch (e) { return null; } };
+  const clean = o => JSON.parse(JSON.stringify(o));
+  const hash = p => { const { qta, ...r } = p; return JSON.stringify(r); };
+  const persistShadow = () => localStorage.setItem(SHADOW_KEY, JSON.stringify(shadow));
+  function status(t) { ['fbStatus','fbStatus2'].forEach(i => { const el = $(i); if (el) el.textContent = t; }); }
+
+  async function start(em, pw) {
+    const cfg = getCfg();
+    if (!cfg) { status('Non collegato'); return; }
+    if (!fs) {
+      status('Collegamento…');
+      const [a, f, u] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-firestore.js'), import(base + 'firebase-auth.js')]);
+      fs = f; authM = u;
+      const app = a.initializeApp(cfg);
+      db = f.initializeFirestore(app, { localCache: f.persistentLocalCache({ tabManager: f.persistentMultipleTabManager() }) });
+      auth = u.getAuth(app);
+      u.onAuthStateChanged(auth, usr => { if (usr) begin(); else status('Accesso necessario (apri ☁️)'); });
+    }
+    if (em) await authM.signInWithEmailAndPassword(auth, em, pw);
+  }
+
+  function begin() {
+    if (started) return;
+    started = true;
+    const { collection, onSnapshot, query, orderBy, limit } = fs;
+    onSnapshot(collection(db, 'products'), snap => {
+      applyRemoteProducts(snap);
+      ready = true;
+      pushChanges(); pushLog();
+      status(snap.metadata.fromCache ? 'Offline (in attesa)' : 'Sincronizzato');
+    }, err => status('Errore: ' + err.code));
+    onSnapshot(query(collection(db, 'movements'), orderBy('ts', 'desc'), limit(500)), applyRemoteLog, () => {});
+  }
+
+  // remoto → locale
+  function applyRemoteProducts(snap) {
+    applying = true;
+    let changed = false;
+    snap.docChanges().forEach(ch => {
+      if (ch.type === 'removed') return;
+      const id = ch.doc.id, d = ch.doc.data();
+      if (d.deleted) {
+        if (products.some(p => p.id === id)) { products = products.filter(p => p.id !== id); changed = true; }
+        delete shadow[id];
+        return;
+      }
+      const np = { ...d, id }; delete np.deleted;
+      const q = Number(np.qta) || 0, h = hash(np), s = shadow[id];
+      if (s && s.q === q && s.h === h) return;
+      const i = products.findIndex(p => p.id === id);
+      if (i >= 0) products[i] = np; else products.push(np);
+      shadow[id] = { q, h };
+      changed = true;
+    });
+    if (changed) {
+      localStorage.setItem('fumetteria_products', JSON.stringify(products));
+      persistShadow();
+      renderTable();
+    }
+    applying = false;
+  }
+
+  function applyRemoteLog(snap) {
+    const have = new Set(scalaLog.map(e => e._sid).filter(Boolean));
+    let added = false;
+    snap.docChanges().forEach(ch => {
+      if (ch.type !== 'added' || have.has(ch.doc.id)) return;
+      scalaLog.push({ ...ch.doc.data(), _sid: ch.doc.id });
+      added = true;
+    });
+    if (added) {
+      scalaLog.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+      localStorage.setItem('fumetteria_scala_log', JSON.stringify(scalaLog));
+    }
+  }
+
+  // locale → remoto: le giacenze partono come variazione (+n / −n), il resto come campi
+  function pushChanges() {
+    if (!ready || applying) return;
+    const { doc, setDoc, increment } = fs;
+    const ids = new Set();
+    products.forEach(p => {
+      ids.add(p.id);
+      const s = shadow[p.id], q = Number(p.qta) || 0, h = hash(p);
+      if (!s) { setDoc(doc(db, 'products', p.id), clean(p)); shadow[p.id] = { q, h }; return; }
+      const dq = q - s.q;
+      if (dq === 0 && h === s.h) return;
+      const { qta, ...rest } = clean(p);
+      if (dq !== 0) rest.qta = increment(dq);
+      setDoc(doc(db, 'products', p.id), rest, { merge: true });
+      shadow[p.id] = { q, h };
+    });
+    Object.keys(shadow).forEach(id => {
+      if (!ids.has(id)) { setDoc(doc(db, 'products', id), { deleted: true }, { merge: true }); delete shadow[id]; }
+    });
+    persistShadow();
+  }
+
+  function pushLog() {
+    if (!ready) return;
+    const { doc, setDoc } = fs;
+    let n = 0, any = false;
+    for (const e of scalaLog) {
+      if (e._sid || ++n > 2000) break;
+      e._sid = uid() + Math.random().toString(36).slice(2, 5);
+      setDoc(doc(db, 'movements', e._sid), clean({ ...e, dev: localStorage.getItem(DEV_KEY) || 'dispositivo' }));
+      any = true;
+    }
+    if (any) localStorage.setItem('fumetteria_scala_log', JSON.stringify(scalaLog));
+  }
+
+  function schedule() {
+    if (!started || !ready) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => { pushChanges(); pushLog(); }, 300);
+  }
+
+  function openModal() {
+    const c = getCfg();
+    $('fbCfg').value = c ? 'const firebaseConfig = ' + JSON.stringify(c, null, 2) + ';' : '';
+    $('fbDev').value = localStorage.getItem(DEV_KEY) || '';
+    $('fbOverlay').style.display = 'flex';
+  }
+  function closeModal() { $('fbOverlay').style.display = 'none'; }
+
+  async function connect() {
+    const cfg = {};
+    [...$('fbCfg').value.matchAll(/(\w+)\s*["']?\s*:\s*["']([^"']+)["']/g)].forEach(m => { if (KEYS.includes(m[1])) cfg[m[1]] = m[2]; });
+    if (!cfg.apiKey || !cfg.projectId || !cfg.appId) { alert('Non trovo le chiavi Firebase. Incolla il blocco firebaseConfig copiato dalla console (servono almeno apiKey, projectId e appId).'); return; }
+    const em = $('fbEmail').value.trim(), pw = $('fbPass').value;
+    if (!getCfg() && (!em || !pw)) { alert("Inserisci email e password dell'utente creato in Firebase."); return; }
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    localStorage.setItem(DEV_KEY, $('fbDev').value.trim() || 'dispositivo');
+    try {
+      await start(em, pw);
+      $('fbPass').value = '';
+      closeModal();
+      toast('☁️ Collegamento avviato');
+    } catch (e) {
+      status('Non collegato');
+      alert('Collegamento non riuscito: ' + (e.code || e.message));
+    }
+  }
+
+  function disconnect() {
+    if (!confirm('Scollegare questo dispositivo? I dati già presenti qui restano, ma non si aggiorneranno più.')) return;
+    localStorage.removeItem(CFG_KEY); localStorage.removeItem(SHADOW_KEY);
+    location.reload();
+  }
+
+  window.addEventListener('offline', () => { if (started) status('Offline (in attesa)'); });
+  window.addEventListener('online', () => { if (started) status('Sincronizzato'); });
+  if (getCfg()) start().catch(() => status('Offline (librerie non caricate)'));
+
+  return { schedule, openModal, closeModal, connect, disconnect };
+})();
+
+
+</script>
+<script>if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}</script>
+</body></html>

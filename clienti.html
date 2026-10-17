@@ -1,0 +1,3233 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clienti — Fumetteria</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1923;
+  --ink-2: #1e2d3d;
+  --ink-3: #2c3e52;
+  --paper: #f0f4f8;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #dbeafe;
+  --danger: #dc2626;
+  --success: #059669;
+  --warning: #d97706;
+  --panel: #ffffff;
+  --border: #e2e8f0;
+  --border-med: #cbd5e1;
+  --border-strong: #94a3b8;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --orange: #ea580c;
+  --purple: #7c3aed;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  border-bottom: 1px solid var(--ink-3);
+  padding: 0 28px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo span { color: #f97316; }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.stat-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.stat-pill span { color: #f97316; font-weight: 700; }
+
+/* ── ALERT BANNER ── */
+#alertBanner {
+  display: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+  color: #fff;
+  padding: 0;
+  border-bottom: 2px solid #5b21b6;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+#alertBanner.open {
+  display: block;
+  max-height: 300px;
+  padding: 0;
+}
+.alert-inner {
+  padding: 14px 28px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.alert-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+.alert-body { flex: 1; min-width: 200px; }
+.alert-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  margin-bottom: 2px;
+}
+.alert-sub { font-size: 0.84rem; opacity: 0.88; }
+.alert-items { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.alert-item {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.alert-item:hover { background: rgba(255,255,255,0.28); }
+.alert-dismiss {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: center;
+  transition: background 0.15s;
+}
+.alert-dismiss:hover { background: rgba(255,255,255,0.22); }
+
+/* ── MAIN ── */
+main { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+
+/* ── TWO-COLUMN LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  main { padding: 14px; }
+  header { padding: 0 14px; }
+}
+
+/* ── SIDEBAR: LISTA CLIENTI ── */
+.sidebar-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+
+.panel-header {
+  background: var(--ink);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.3px;
+}
+
+.panel-search {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.panel-search input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border: 1px solid var(--border-med);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  background: var(--paper);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--ink);
+}
+.panel-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+}
+.panel-search::before {
+  content: '🔍';
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+}
+
+.client-list {
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+
+.client-row {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.client-row:last-child { border-bottom: none; }
+.client-row:hover { background: #f8fafc; }
+.client-row.active { background: var(--accent-light); border-left: 3px solid var(--accent); }
+.client-row.active .c-name { color: var(--accent); }
+.client-row.has-alert { border-left: 3px solid var(--purple); }
+.client-row.has-alert .c-alert-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--purple);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.client-avatar {
+  width: 36px; height: 36px;
+  background: var(--ink-2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.client-row.active .client-avatar { background: var(--accent); color: #fff; }
+
+.c-info { flex: 1; min-width: 0; }
+.c-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.c-meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.c-alert-dot { display: none; }
+
+.no-clients {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* ── CARTELLE CLIENTI ── */
+.folder-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; }
+.fm-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+.fm-row:last-child { border-bottom:none; }
+.fm-name { flex:1; min-width:0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fm-count { font-size:0.76rem; color:var(--text-muted); white-space:nowrap; }
+.fm-add { display:flex; gap:8px; margin-bottom:14px; }
+.fm-add input { flex:1; padding:8px 12px; border:1px solid var(--border-med); border-radius:var(--radius); font-family:'DM Sans',sans-serif; font-size:0.86rem; outline:none; }
+.fm-add input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,0.10); }
+
+/* ── MENU CARTELLA (scheda cliente) ── */
+.fmenu {
+  position: fixed; z-index: 600; min-width: 210px; max-width: 280px; max-height: 60vh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--border-med); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); padding: 4px 0;
+}
+.fmenu-title { padding: 8px 14px 6px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-light); }
+.fmenu-item { padding: 8px 14px; font-size: 0.84rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fmenu-item:hover { background: #f1f5f9; }
+.fmenu-item.sel { font-weight: 700; color: var(--accent); background: var(--accent-light); }
+.fmenu-item.new { border-top: 1px solid var(--border); margin-top: 4px; color: var(--orange); font-weight: 600; }
+.btn-folder { max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── MAIN CONTENT: PROFILO CLIENTE ── */
+.content-area { display: flex; flex-direction: column; gap: 16px; }
+
+.empty-state {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 60px 30px;
+  text-align: center;
+}
+.empty-state .es-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state .es-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.empty-state .es-sub { font-size: 0.84rem; color: var(--text-light); }
+
+/* ── PROFILO CARD ── */
+.profile-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.profile-header {
+  background: var(--ink);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.profile-avatar-lg {
+  width: 52px; height: 52px;
+  background: var(--ink-3);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.profile-info { flex: 1; min-width: 0; }
+.profile-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-phone {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.profile-actions { display: flex; gap: 8px; }
+
+.profile-body { padding: 20px 24px; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.info-box {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.info-box .ib-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.info-box .ib-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.info-box.accent-box { background: var(--accent); border-color: var(--accent-hover); }
+.info-box.accent-box .ib-label { color: rgba(255,255,255,0.7); }
+.info-box.accent-box .ib-val { color: #fff; }
+
+.note-section {
+  margin-bottom: 16px;
+}
+.note-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.note-text {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--ink-2);
+  min-height: 40px;
+  line-height: 1.5;
+}
+.note-text.empty { color: var(--text-light); font-style: italic; }
+
+/* ── ORDINI SECTION ── */
+.orders-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.orders-header {
+  background: var(--ink-2);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.orders-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+.orders-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.07);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.orders-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.no-orders {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.order-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.order-item:hover { box-shadow: var(--shadow); }
+
+.order-item.arrived { border-color: #86efac; }
+.order-item.arrived .order-head { background: #f0fdf4; }
+
+.order-item.waiting { border-color: var(--border-med); }
+
+.order-item.notified { border-color: #fde68a; }
+.order-item.notified .order-head { background: #fffbeb; }
+
+.order-head {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fafafa;
+  border-bottom: 1px solid var(--border);
+}
+.order-status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.order-item.arrived .order-status-dot { background: var(--success); box-shadow: 0 0 6px rgba(5,150,105,0.5); }
+.order-item.waiting .order-status-dot { background: var(--border-strong); }
+.order-item.notified .order-status-dot { background: var(--warning); box-shadow: 0 0 6px rgba(217,119,6,0.4); }
+
+.order-product { flex: 1; font-weight: 700; font-size: 0.88rem; }
+.order-product-sub { font-size: 0.73rem; color: var(--text-muted); margin-top: 1px; font-family: 'DM Mono', monospace; }
+
+.order-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+.badge-arrived { background: #dcfce7; color: #15803d; }
+.badge-waiting { background: #f1f5f9; color: #475569; }
+.badge-notified { background: #fef3c7; color: #a16207; }
+
+.order-body {
+  padding: 8px 14px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.order-meta { display: flex; gap: 4px; align-items: center; }
+.order-meta strong { color: var(--ink-2); font-weight: 600; }
+.order-actions { margin-left: auto; display: flex; gap: 6px; }
+
+/* ── ABBONAMENTI SECTION ── */
+.subs-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.subs-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.subs-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+.subs-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: #ede9fe;
+  background: rgba(255,255,255,0.12);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.subs-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.no-subs {
+  padding: 26px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.sub-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.sub-item:hover { box-shadow: var(--shadow); }
+.sub-item.paused { opacity: 0.6; }
+.sub-item.due { border-color: #c4b5fd; }
+.sub-item.due .sub-head { background: #f5f3ff; }
+.sub-head {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fafafa;
+  border-bottom: 1px solid var(--border);
+}
+.sub-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--purple);
+}
+.sub-item.paused .sub-dot { background: var(--border-strong); }
+.sub-product { flex: 1; font-weight: 700; font-size: 0.88rem; }
+.sub-product-sub { font-size: 0.73rem; color: var(--text-muted); margin-top: 1px; font-family: 'DM Mono', monospace; }
+.sub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.sub-badge.paused-badge { background: #f1f5f9; color: #475569; }
+.sub-badge.due-badge { background: #fef3c7; color: #a16207; }
+.sub-body {
+  padding: 8px 14px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sub-meta { display: flex; gap: 4px; align-items: center; }
+.sub-meta strong { color: var(--ink-2); font-weight: 600; }
+.sub-actions { margin-left: auto; display: flex; gap: 6px; }
+
+/* ── ADD ORDER FORM ── */
+.add-order-form {
+  border: 2px dashed var(--border-med);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin: 0 16px 12px;
+  background: #fafcff;
+  display: none;
+}
+.add-order-form.open { display: block; }
+.aof-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.aof-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.aof-row.full { grid-template-columns: 1fr; }
+.aof-field label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.aof-field input, .aof-field select, .aof-field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-med);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  color: var(--ink);
+  resize: vertical;
+}
+.aof-field input:focus, .aof-field select:focus, .aof-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.09);
+}
+.aof-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── PRODUCT SEARCH IN ORDER ── */
+.product-search-wrap { position: relative; }
+.product-search-wrap input { padding-right: 36px; }
+.product-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1px solid var(--border-med);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+.product-dropdown.open { display: block; }
+.pdd-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pdd-item:last-child { border-bottom: none; }
+.pdd-item:hover { background: var(--accent-light); }
+.pdd-item .pdd-bc { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--text-muted); }
+.pdd-item .pdd-stock { font-size: 0.72rem; font-weight: 700; color: var(--success); }
+.pdd-item .pdd-stock.out { color: var(--danger); }
+.pdd-empty { padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--panel); color: var(--ink-2); border-color: var(--border-med); }
+.btn-secondary:hover { background: #f8fafc; border-color: var(--border-strong); }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-success:hover { background: #047857; }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-danger:hover { background: #b91c1c; }
+.btn-orange { background: var(--orange); color: #fff; border-color: var(--orange); }
+.btn-orange:hover { background: #c2410c; }
+.btn-purple { background: var(--purple); color: #fff; border-color: var(--purple); }
+.btn-purple:hover { background: #6d28d9; }
+.btn-sm { font-size: 0.76rem; padding: 5px 10px; box-shadow: none; }
+.btn-icon { padding: 5px 8px; font-size: 0.85rem; box-shadow: none; }
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,25,35,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+  animation: popIn 0.2s ease;
+}
+@keyframes popIn {
+  from { transform: scale(0.95) translateY(12px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-header {
+  background: var(--ink);
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.modal-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+.modal-close {
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.modal-body { padding: 20px 22px; }
+.modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  background: #f8fafc;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-row.full { grid-template-columns: 1fr; }
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border-med);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--ink);
+  resize: vertical;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: #e2e8f0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--ink-3);
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── NOTIFICA ARRIVO BANNER (big) ── */
+#arrivalModal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,25,35,0.72);
+  backdrop-filter: blur(8px);
+  z-index: 400;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#arrivalModal.open { display: flex; }
+.arrival-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  max-width: 520px;
+  width: 100%;
+  overflow: hidden;
+  animation: popIn 0.25s ease;
+}
+.arrival-top {
+  background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+  padding: 22px 26px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.arrival-icon { font-size: 2.2rem; }
+.arrival-head { flex: 1; }
+.arrival-headline {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.arrival-sub { font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+.arrival-body { padding: 20px 26px; }
+.arrival-product {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.arrival-pname { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; }
+.arrival-pbc { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+.arrival-clients {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.arrival-client-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.arrival-client-item:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.ac-avatar {
+  width: 34px; height: 34px;
+  background: var(--ink-2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.ac-info { flex: 1; }
+.ac-name { font-weight: 700; font-size: 0.88rem; }
+.ac-phone { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+.ac-arrow { color: var(--text-light); font-size: 1rem; }
+.arrival-footer { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── SYNC STATUS ── */
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+}
+.sync-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 5px rgba(5,150,105,0.6);
+}
+.sync-dot.off { background: var(--text-light); box-shadow: none; }
+
+/* ── GDPR ── */
+.gdpr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.gdpr-badge.ok  { background: #dcfce7; color: #15803d; }
+.gdpr-badge.no  { background: #fee2e2; color: #b91c1c; }
+
+.gdpr-info-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  color: #166534;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.gdpr-info-box h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #15803d;
+}
+.gdpr-info-box ul {
+  padding-left: 16px;
+  margin: 0;
+}
+
+.gdpr-consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--border-med);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  margin-top: 4px;
+}
+.gdpr-consent-row:hover { border-color: var(--accent); background: var(--accent-light); }
+.gdpr-consent-row input[type=checkbox] {
+  width: 17px; height: 17px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+.gdpr-consent-label {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.gdpr-consent-label strong { color: var(--ink); }
+.gdpr-link {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+/* Modal GDPR privacy policy */
+.gdpr-policy-content {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  line-height: 1.65;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+.gdpr-policy-content h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 14px 0 4px;
+}
+.gdpr-policy-content h3:first-child { margin-top: 0; }
+.gdpr-policy-content p { margin-bottom: 8px; }
+.gdpr-policy-content ul { padding-left: 16px; margin-bottom: 8px; }
+
+.gdpr-rights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+.gdpr-right-item {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+}
+.gdpr-right-item .ri-icon { font-size: 1.1rem; display: block; margin-bottom: 3px; }
+.gdpr-right-item .ri-title { font-weight: 700; font-size: 0.8rem; color: var(--ink); margin-bottom: 2px; }
+.gdpr-right-item .ri-desc { color: var(--text-muted); font-size: 0.74rem; }
+
+.gdpr-export-block {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 12px;
+}
+.gdpr-export-block .eb-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.gdpr-export-block .eb-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* ── BUONI ACQUISTO ── */
+.vch-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden}
+.vch-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--border)}
+.vch-title{font-weight:800;flex:1;min-width:120px}
+.vch-saldo{font-size:1.7rem;font-weight:800;color:var(--accent)}
+.vch-list{padding:6px 16px 12px}
+.vch-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;flex-wrap:wrap}
+.vch-pos{color:var(--success);font-weight:800}.vch-neg{color:var(--danger);font-weight:800}
+.vch-seg{display:flex;gap:8px;margin-bottom:14px}
+.vch-seg button{flex:1;padding:9px;border:1px solid var(--border-med);border-radius:var(--radius);background:var(--panel);font-weight:700;cursor:pointer;color:var(--ink)}
+.vch-seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.vch-prev{border:1px dashed var(--border-strong);border-radius:var(--radius);padding:12px;margin:6px 0 10px;min-height:3em;font-size:.9rem}
+.vch-err{color:var(--danger);font-weight:700;min-height:1.2em;font-size:.85rem}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">👥 Clienti <span>Fumetteria</span></div>
+  <div class="header-right">
+    <div class="sync-status" id="syncStatus">
+      <div class="sync-dot off" id="syncDot"></div>
+      <span id="syncLabel">Magazzino: —</span>
+    </div>
+    <div class="stat-pill">Clienti: <span id="h-clienti">0</span></div>
+    <div class="stat-pill">Ordini attivi: <span id="h-ordini">0</span></div>
+    <button class="btn btn-orange btn-sm" onclick="openClientModal()">+ Nuovo cliente</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:#94a3b8;" onclick="syncWithMagazzino()" title="Sincronizza con il gestionale magazzino">🔄 Sync</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:#94a3b8;" onclick="exportBackup()" title="Salva tutti i dati (clienti, ordini, abbonamenti, buoni) in un file">💾 Backup</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:#94a3b8;" onclick="document.getElementById('backupFile').click()" title="Ripristina i dati da un file di backup">📂 Ripristina</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:#94a3b8;" onclick="openQueue()" title="Messaggi WhatsApp da inviare uno dopo l'altro">📨 Coda <span id="queueCount"></span></button>
+    <select id="waMode" onchange="setWaMode(this.value)" title="Come aprire WhatsApp quando avvisi un cliente" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:6px;padding:5px 8px;font-size:0.78rem;">
+      <option value="web">💬 WhatsApp Web (stessa scheda)</option>
+      <option value="desktop">💬 App WhatsApp per computer</option>
+      <option value="classic">💬 Link wa.me (nuova scheda)</option>
+    </select>
+    <input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importBackupFile(event)">
+  </div>
+</header>
+
+<!-- ALERT BANNER (arrivi) -->
+<div id="alertBanner">
+  <div class="alert-inner">
+    <div class="alert-icon">📦</div>
+    <div class="alert-body">
+      <div class="alert-title" id="alertTitle">Prodotti arrivati in magazzino!</div>
+      <div class="alert-sub" id="alertSub">Alcuni clienti stanno aspettando questi prodotti</div>
+      <div class="alert-items" id="alertItems"></div>
+    </div>
+    <button class="alert-dismiss" onclick="dismissAlert()">Ignora</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="toolbar">
+    <span style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--text-muted);">Gestione Clienti</span>
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary btn-sm" onclick="checkArrivals()">🔍 Controlla arrivi</button>
+    <button class="btn btn-purple btn-sm" onclick="openImportModal()">📥 Importa da Magazzino</button>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR: LISTA -->
+    <div class="sidebar-panel">
+      <div class="panel-header">
+        <span class="panel-title">Lista Clienti</span>
+        <button class="btn btn-orange btn-sm" onclick="openClientModal()">+ Nuovo</button>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="clientSearch" placeholder="Cerca nome o telefono…" oninput="renderClientList()">
+        <select id="clientSort" onchange="setClientSort(this.value)" aria-label="Ordina i clienti" style="width:100%;margin-top:8px;padding:8px 10px;border:1px solid var(--border-med);border-radius:var(--radius);background:var(--panel);color:inherit;font-size:.84rem;">
+          <option value="insert">↕ Ordine di inserimento</option>
+          <option value="recent">🕒 Più recenti prima</option>
+          <option value="az">🔤 Cognome A → Z</option>
+          <option value="za">🔤 Cognome Z → A</option>
+          <option value="activity">⏱ Ultima attività</option>
+          <option value="open">📦 Più ordini aperti</option>
+          <option value="saldo">🎟️ Saldo buono più alto</option>
+        </select>
+        <div class="folder-bar">
+          <button class="btn btn-secondary btn-sm" onclick="openFoldersModal()" style="white-space:nowrap">📁 Cartelle</button>
+          <select id="folderFilter" onchange="setFolderFilter(this.value)" aria-label="Mostra clienti di una cartella" style="flex:1;min-width:0;padding:5px 8px;border:1px solid var(--border-med);border-radius:var(--radius);background:var(--panel);color:inherit;font-size:.8rem;"></select>
+        </div>
+      </div>
+      <div class="client-list" id="clientList">
+        <div class="no-clients">Nessun cliente ancora.<br>Clicca "+ Nuovo" per aggiungere.</div>
+      </div>
+    </div>
+
+    <!-- CONTENT: PROFILO -->
+    <div class="content-area" id="contentArea">
+      <div class="empty-state">
+        <div class="es-icon">👈</div>
+        <div class="es-title">Seleziona un cliente</div>
+        <div class="es-sub">Scegli un cliente dalla lista per vedere il suo profilo e gli ordini</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL CLIENTE -->
+<div class="overlay" id="clientOverlay" onclick="handleClientOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="clientModalTitle">👤 Nuovo Cliente</div>
+      <button class="modal-close" onclick="closeClientModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field">
+          <label>Nome *</label>
+          <input type="text" id="f-nome" placeholder="Mario">
+        </div>
+        <div class="field">
+          <label>Cognome *</label>
+          <input type="text" id="f-cognome" placeholder="Rossi">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Telefono</label>
+          <input type="tel" id="f-telefono" placeholder="333 1234567">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="f-email" placeholder="mario@email.com">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Cartella</label>
+          <select id="f-cartella" onchange="handleFolderSelect(this)"></select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Note cliente</label>
+          <textarea id="f-note-cliente" rows="3" placeholder="Preferenze, categorie di interesse, ecc."></textarea>
+        </div>
+      </div>
+      <div class="form-row full" id="gdprConsentRow">
+        <div class="field">
+          <label>Consenso Privacy <span style="color:var(--danger)">*</span></label>
+          <label class="gdpr-consent-row" for="f-gdpr-consent">
+            <input type="checkbox" id="f-gdpr-consent">
+            <span class="gdpr-consent-label">
+              <strong>Acconsento al trattamento dei miei dati personali</strong> per la gestione degli ordini e delle comunicazioni legate al punto vendita, ai sensi del Regolamento UE 2016/679 (GDPR).
+              <br><span class="gdpr-link" onclick="event.preventDefault();event.stopPropagation();openPrivacyPolicy()">Leggi l'informativa completa →</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeClientModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveClient()">💾 Salva cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARTELLE -->
+<div class="overlay" id="folderOverlay" onclick="if(event.target===this)closeFoldersModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📁 Cartelle clienti</div>
+      <button class="modal-close" onclick="closeFoldersModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fm-add">
+        <input type="text" id="f-new-folder" placeholder="Nome nuova cartella (es. Manga, Funko, Abbonati…)" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();addFolderFromModal();}">
+        <button class="btn btn-orange btn-sm" onclick="addFolderFromModal()">+ Aggiungi</button>
+      </div>
+      <div id="folderManagerList"></div>
+      <div style="margin-top:12px;font-size:0.76rem;color:var(--text-light);">Assegni un cliente a una cartella dal tasto 📁 nella sua scheda, oppure da "Modifica cliente". La lista a sinistra mostra sempre tutti i clienti: usa il menu in alto per vedere solo una cartella. Eliminando una cartella i clienti non vengono cancellati: tornano in "Senza cartella".</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeFoldersModal()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORDINE -->
+<div class="overlay" id="orderOverlay" onclick="handleOrderOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="orderModalTitle">📋 Nuovo Ordine</div>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row full">
+        <div class="field">
+          <label>Prodotto *</label>
+          <div class="product-search-wrap">
+            <input type="text" id="f-prodotto-search" placeholder="Cerca per nome o barcode…" oninput="searchProducts(this.value)" autocomplete="off">
+            <div class="product-dropdown" id="productDropdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Nome prodotto (manuale se non in magazzino)</label>
+          <input type="text" id="f-prodotto-nome" placeholder="Nome prodotto ordinato">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Barcode / EAN</label>
+          <input type="text" id="f-prodotto-barcode" placeholder="Opzionale">
+        </div>
+        <div class="field">
+          <label>Quantità</label>
+          <input type="number" id="f-order-qty" value="1" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Prezzo concordato (€)</label>
+          <input type="number" id="f-order-price" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Data ordine</label>
+          <input type="date" id="f-order-date">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Note ordine</label>
+          <textarea id="f-order-note" rows="2" placeholder="Acconto versato, variante specifica, ecc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeOrderModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveOrder()">💾 Salva ordine</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ABBONAMENTO (ordine ricorrente) -->
+<div class="overlay" id="subOverlay" onclick="handleSubOverlay(event)">
+  <div class="modal">
+    <div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">
+      <div class="modal-title" id="subModalTitle">🔁 Nuovo Abbonamento</div>
+      <button class="modal-close" onclick="closeSubscriptionModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row full">
+        <div class="field">
+          <label>Prodotto *</label>
+          <div class="product-search-wrap">
+            <input type="text" id="f-sub-prodotto-search" placeholder="Cerca per nome o barcode…" oninput="searchSubProducts(this.value)" autocomplete="off">
+            <div class="product-dropdown" id="subProductDropdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Nome prodotto (manuale se non in magazzino)</label>
+          <input type="text" id="f-sub-prodotto-nome" placeholder="Es. Uscita mensile serie, box TCG, ecc.">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Barcode / EAN</label>
+          <input type="text" id="f-sub-prodotto-barcode" placeholder="Opzionale">
+        </div>
+        <div class="field">
+          <label>Quantità</label>
+          <input type="number" id="f-sub-qty" value="1" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Prezzo concordato (€)</label>
+          <input type="number" id="f-sub-price" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Frequenza *</label>
+          <select id="f-sub-frequenza" onchange="toggleCustomFreqField()">
+            <option value="settimanale">Ogni settimana</option>
+            <option value="quindicinale">Ogni 2 settimane</option>
+            <option value="mensile" selected>Ogni mese</option>
+            <option value="bimestrale">Ogni 2 mesi</option>
+            <option value="trimestrale">Ogni 3 mesi</option>
+            <option value="personalizzato">Personalizzata (giorni)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field" id="subCustomFreqField" style="display:none">
+          <label>Ogni quanti giorni</label>
+          <input type="number" id="f-sub-freq-giorni" value="30" min="1">
+        </div>
+        <div class="field">
+          <label>Prossima consegna *</label>
+          <input type="date" id="f-sub-next-date">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>Note abbonamento</label>
+          <textarea id="f-sub-note" rows="2" placeholder="Es. consegna sempre il sabato, variante preferita, ecc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSubscriptionModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveSubscription()">💾 Salva abbonamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORT MAGAZZINO -->
+<div class="overlay" id="importOverlay" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title">📥 Cerca prodotto nel Magazzino</div>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:14px">Ricerca nel magazzino connesso. I dati si aggiornano ogni volta che premi <strong>Sync</strong>.</p>
+      <div style="position:relative;margin-bottom:14px">
+        <input type="text" id="importSearch" placeholder="Nome prodotto o barcode…" oninput="renderImportList()" style="width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border-med);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.88rem;background:#fff;outline:none;color:var(--ink)">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">🔍</span>
+      </div>
+      <div id="importList" style="max-height:340px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius)"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeImportModal()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ARRIVO PRODOTTO -->
+<div id="arrivalModal">
+  <div class="arrival-card">
+    <div class="arrival-top">
+      <div class="arrival-icon">🎉</div>
+      <div class="arrival-head">
+        <div class="arrival-headline" id="arrivalHeadline">Prodotto arrivato in magazzino!</div>
+        <div class="arrival-sub" id="arrivalSubtitle">Questi clienti lo stavano aspettando</div>
+      </div>
+    </div>
+    <div class="arrival-body">
+      <div class="arrival-product" id="arrivalProduct"></div>
+      <div class="arrival-clients" id="arrivalClientsList"></div>
+      <div class="arrival-footer">
+        <button class="btn btn-secondary" onclick="closeArrivalModal()">Chiudi</button>
+        <button class="btn btn-primary" onclick="queueArrivals()">📨 Metti tutti in coda</button>
+        <button class="btn btn-success" onclick="markAllNotified()">✅ Tutti notificati</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRIVACY POLICY (informativa) -->
+<div class="overlay" id="privacyPolicyOverlay" onclick="if(event.target===this)closePrivacyPolicy()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title">🔒 Informativa Privacy — Art. 13 GDPR</div>
+      <button class="modal-close" onclick="closePrivacyPolicy()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="gdpr-policy-content">
+        <h3>1. Titolare del trattamento</h3>
+        <p>Il titolare del trattamento è il gestore della fumetteria che utilizza questo software. I dati sono trattati esclusivamente per la gestione degli ordini e dei clienti del punto vendita.</p>
+        <h3>2. Dati raccolti</h3>
+        <ul>
+          <li>Nome e cognome</li>
+          <li>Numero di telefono</li>
+          <li>Indirizzo e-mail</li>
+          <li>Note personali (preferenze, interessi)</li>
+          <li>Storico ordini e acquisti</li>
+        </ul>
+        <h3>3. Finalità e base giuridica</h3>
+        <p>I dati sono trattati per le seguenti finalità:</p>
+        <ul>
+          <li><strong>Gestione ordini:</strong> tenere traccia degli ordini in attesa e avvisare il cliente dell'arrivo della merce (base giuridica: esecuzione del contratto, art. 6.1.b GDPR).</li>
+          <li><strong>Comunicazioni commerciali:</strong> solo previo consenso esplicito del cliente (base giuridica: consenso, art. 6.1.a GDPR).</li>
+        </ul>
+        <h3>4. Conservazione dei dati</h3>
+        <p>I dati sono conservati nel browser locale (localStorage) del dispositivo in uso nel punto vendita. Non vengono trasmessi a server di terze parti. La conservazione è limitata al periodo di attività commerciale con il cliente.</p>
+        <h3>5. Comunicazione a terzi</h3>
+        <p>I dati non vengono comunicati a terzi, ceduti né diffusi, salvo obblighi di legge.</p>
+        <h3>6. Diritti dell'interessato</h3>
+        <p>L'interessato ha il diritto di accedere ai propri dati (art. 15), ottenerne la rettifica (art. 16) o la cancellazione (art. 17), la portabilità (art. 20), di opporsi al trattamento (art. 21) e di revocare il consenso in qualsiasi momento.</p>
+        <p>Per esercitare i propri diritti, l'interessato può rivolgersi direttamente al titolare del trattamento presso il punto vendita.</p>
+        <h3>7. Reclamo all'Autorità</h3>
+        <p>L'interessato ha il diritto di proporre reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" style="color:var(--accent)">www.garanteprivacy.it</a>).</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closePrivacyPolicy()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GDPR CLIENTE (diritti + export) -->
+<div class="overlay" id="gdprClientOverlay" onclick="if(event.target===this)closeGdprModal()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header" style="background:linear-gradient(135deg,#166534,#15803d)">
+      <div class="modal-title">🔒 Privacy &amp; GDPR — <span id="gdprClientName"></span></div>
+      <button class="modal-close" onclick="closeGdprModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="gdprConsentStatus" style="margin-bottom:16px"></div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);margin-bottom:10px;">Esercizio dei diritti</div>
+      <div class="gdpr-rights-grid">
+        <div class="gdpr-right-item">
+          <span class="ri-icon">📋</span>
+          <div class="ri-title">Accesso (art. 15)</div>
+          <div class="ri-desc">Copia dei propri dati</div>
+        </div>
+        <div class="gdpr-right-item">
+          <span class="ri-icon">✏️</span>
+          <div class="ri-title">Rettifica (art. 16)</div>
+          <div class="ri-desc">Correggere dati inesatti</div>
+        </div>
+        <div class="gdpr-right-item">
+          <span class="ri-icon">🗑</span>
+          <div class="ri-title">Cancellazione (art. 17)</div>
+          <div class="ri-desc">Diritto all'oblio</div>
+        </div>
+        <div class="gdpr-right-item">
+          <span class="ri-icon">📦</span>
+          <div class="ri-title">Portabilità (art. 20)</div>
+          <div class="ri-desc">Esportare i propri dati</div>
+        </div>
+      </div>
+      <div class="gdpr-export-block">
+        <div class="eb-title">📦 Esporta dati (portabilità, art. 20)</div>
+        <div class="eb-sub">Scarica tutti i dati personali e gli ordini del cliente in formato JSON.</div>
+        <button class="btn btn-secondary btn-sm" onclick="exportClientData()">⬇ Esporta dati cliente</button>
+      </div>
+      <div class="gdpr-export-block" style="margin-top:8px">
+        <div class="eb-title">🗑 Cancellazione definitiva (art. 17 — Diritto all'oblio)</div>
+        <div class="eb-sub">Elimina tutti i dati personali e gli ordini del cliente in modo permanente.</div>
+        <button class="btn btn-danger btn-sm" onclick="gdprDeleteClient()">🗑 Elimina tutti i dati</button>
+      </div>
+      <div style="margin-top:14px;font-size:0.74rem;color:var(--text-muted);line-height:1.5">
+        <span class="gdpr-link" onclick="closeGdprModal();openPrivacyPolicy()">📄 Leggi l'informativa privacy completa →</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeGdprModal()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CODA WHATSAPP -->
+<div class="overlay" id="queueOverlay" onclick="if(event.target===this)closeQueue()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><div class="modal-title">📨 Coda WhatsApp</div><button class="modal-close" onclick="closeQueue()">✕</button></div>
+    <div class="modal-body">
+      <div id="queueSummary" style="font-weight:700;margin-bottom:6px"></div>
+      <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px">Premi il pulsante grande: si apre la chat con il messaggio già scritto. Premi Invio in WhatsApp, poi torna qui e premi di nuovo il pulsante: l'invio viene segnato e si apre la chat successiva.</div>
+      <button class="btn btn-primary" id="queueMain" style="width:100%;padding:12px;font-size:1rem;margin-bottom:12px" onclick="queueNext()"></button>
+      <div id="queueList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="queueClear(true)">Togli gli inviati</button>
+      <button class="btn btn-secondary" onclick="queueClear(false)">Svuota coda</button>
+      <button class="btn btn-secondary" onclick="closeQueue()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BUONO ACQUISTO -->
+<div class="overlay" id="voucherOverlay" onclick="if(event.target===this)closeVoucherModal()">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">🎟️ Buono acquisto — <span id="vchName"></span></div>
+      <button class="modal-close" onclick="closeVoucherModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="vchForm">
+        <div class="vch-seg"><button type="button" id="vchBtnR" class="on" onclick="setVoucherMode('ricarica')">Ricarica</button><button type="button" id="vchBtnS" onclick="setVoucherMode('scala')">Scala</button></div>
+        <div class="form-row full"><div class="field"><label>Importo (€)</label><input type="text" id="vch-importo" inputmode="decimal" placeholder="Es. 12,50" oninput="updateVoucherPreview()" autocomplete="off"></div></div>
+        <div class="form-row full"><div class="field"><label>Nota (facoltativa)</label><input type="text" id="vch-nota" autocomplete="off"></div></div>
+        <div class="vch-prev" id="vchPrev"></div>
+        <div class="vch-err" id="vchErr" role="alert"></div>
+      </div>
+      <div id="vchResult" style="display:none">
+        <div class="vch-prev"><strong>Messaggio pronto</strong><p id="vchResText" style="margin:6px 0 0"></p></div>
+        <button class="btn btn-primary" onclick="sendVoucherWa()">💬 Avvisa via WhatsApp</button>
+        <button class="btn btn-secondary" onclick="queueVoucher()">📨 Aggiungi alla coda</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="vchCancel" onclick="closeVoucherModal()">Annulla</button>
+      <button class="btn btn-primary" id="vchConfirm" onclick="saveVoucher()">Conferma ricarica</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STORAGE KEYS ─────────────────────────────────────────────
+const KEY_CLIENTI  = 'fumetteria_clienti';
+const KEY_ORDINI   = 'fumetteria_ordini';
+const KEY_ABBONAMENTI = 'fumetteria_abbonamenti';
+const KEY_PRODUCTS = 'fumetteria_products';  // condiviso con gestionale magazzino
+const KEY_LAST_SYNC = 'fumetteria_last_sync_snapshot';
+
+// ── STATE ─────────────────────────────────────────────────────
+let clients  = JSON.parse(localStorage.getItem(KEY_CLIENTI)  || '[]');
+let orders   = JSON.parse(localStorage.getItem(KEY_ORDINI)   || '[]');
+let subscriptions = JSON.parse(localStorage.getItem(KEY_ABBONAMENTI) || '[]');
+let products = JSON.parse(localStorage.getItem(KEY_PRODUCTS) || '[]');
+let lastSnapshot = JSON.parse(localStorage.getItem(KEY_LAST_SYNC) || 'null');
+const KEY_CARTELLE = 'fumetteria_cartelle';
+let folders = JSON.parse(localStorage.getItem(KEY_CARTELLE) || '[]');  // [{id, nome}]
+
+let selectedClientId = null;
+let editingClientId  = null;
+let editingOrderId   = null;
+let selectedOrderClientId = null;
+let editingSubId = null;
+let selectedSubClientId = null;
+let pendingArrivals = []; // [{product, clients[]}]
+let currentArrivalIdx = 0;
+
+// ── UTILS ─────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function save() {
+  localStorage.setItem(KEY_CLIENTI, JSON.stringify(clients));
+  localStorage.setItem(KEY_ORDINI,  JSON.stringify(orders));
+  localStorage.setItem(KEY_ABBONAMENTI, JSON.stringify(subscriptions));
+  localStorage.setItem(KEY_CARTELLE, JSON.stringify(folders));
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(nome, cognome) {
+  return ((nome||'')[0]||'') + ((cognome||'')[0]||'');
+}
+function fmt(n) { return isNaN(n) ? '0.00' : Number(n).toFixed(2); }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── SYNC CON MAGAZZINO ─────────────────────────────────────────
+function syncWithMagazzino() {
+  const raw = localStorage.getItem(KEY_PRODUCTS);
+  if (!raw) {
+    toast('⚠ Nessun magazzino trovato. Apri prima il Gestionale Magazzino.');
+    updateSyncStatus(false);
+    return;
+  }
+  products = JSON.parse(raw);
+  updateSyncStatus(true);
+  toast('🔄 Magazzino sincronizzato: ' + products.length + ' prodotti');
+}
+
+function updateSyncStatus(ok) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  if (ok) {
+    dot.classList.remove('off');
+    lbl.textContent = 'Magazzino: ' + products.length + ' prodotti';
+  } else {
+    dot.classList.add('off');
+    lbl.textContent = 'Magazzino: non connesso';
+  }
+}
+
+// ── CHECK ARRIVI ─────────────────────────────────────────────
+// Confronta lo stato attuale del magazzino con l'ultimo snapshot salvato.
+// Se un prodotto ha quantità aumentata (o era a 0 ed ora > 0), verifica se
+// qualche cliente ha un ordine in attesa per quel prodotto.
+function checkArrivals() {
+  syncWithMagazzino();
+  if (!products.length) {
+    toast('⚠ Nessun magazzino collegato.');
+    return;
+  }
+
+  const prevSnap = lastSnapshot; // {id: qta} map
+  // Salva snapshot corrente
+  const newSnap = {};
+  products.forEach(p => { newSnap[p.id] = p.qta; });
+  localStorage.setItem(KEY_LAST_SYNC, JSON.stringify(newSnap));
+  lastSnapshot = newSnap;
+
+  if (!prevSnap) {
+    toast('📸 Snapshot iniziale salvato. Controlla arrivi dopo il prossimo aggiornamento magazzino.');
+    return;
+  }
+
+  // Trova prodotti arrivati (quantità aumentata da 0, o nuovi prodotti con qta > 0)
+  const arrived = [];
+  products.forEach(p => {
+    const prevQta = prevSnap[p.id];
+    const nowQta  = p.qta;
+    const wasZero = (prevQta === undefined || prevQta === 0);
+    const hasStock = nowQta > 0;
+    if (wasZero && hasStock) {
+      arrived.push(p);
+    }
+  });
+
+  if (!arrived.length) {
+    toast('✅ Nessun nuovo arrivo rilevato.');
+    return;
+  }
+
+  // Per ogni prodotto arrivato, cerca ordini in attesa
+  pendingArrivals = [];
+  arrived.forEach(product => {
+    const matchingOrders = orders.filter(o =>
+      o.status === 'waiting' &&
+      (
+        (o.productBarcode && product.barcode && o.productBarcode === product.barcode) ||
+        (o.productMagazzinoId && o.productMagazzinoId === product.id) ||
+        (o.productName && product.nome && o.productName.toLowerCase() === product.nome.toLowerCase())
+      )
+    );
+    if (matchingOrders.length) {
+      const matchClients = matchingOrders.map(o => {
+        const client = clients.find(c => c.id === o.clientId);
+        return { client, order: o };
+      }).filter(x => x.client);
+      if (matchClients.length) {
+        pendingArrivals.push({ product, matches: matchClients });
+      }
+    }
+  });
+
+  if (!pendingArrivals.length) {
+    toast('📦 ' + arrived.length + ' prodotti arrivati, ma nessun cliente in attesa.');
+    return;
+  }
+
+  // Mostra banner + modal
+  showAlertBanner(pendingArrivals);
+  currentArrivalIdx = 0;
+  showArrivalModal(0);
+}
+
+function showAlertBanner(arrivals) {
+  const banner = document.getElementById('alertBanner');
+  const title  = document.getElementById('alertTitle');
+  const sub    = document.getElementById('alertSub');
+  const items  = document.getElementById('alertItems');
+
+  title.textContent = arrivals.length + ' prodott' + (arrivals.length===1?'o':'i') + ' arrivat' + (arrivals.length===1?'o':'i') + ' con clienti in attesa!';
+  const totalClients = arrivals.reduce((s, a) => s + a.matches.length, 0);
+  sub.textContent = totalClients + ' client' + (totalClients===1?'e':'i') + ' devo' + (totalClients===1?'':'no') + ' essere avvisat' + (totalClients===1?'o':'i');
+
+  items.innerHTML = arrivals.map((a, i) =>
+    `<div class="alert-item" onclick="showArrivalModal(${i})">📦 ${esc(a.product.nome)} (${a.matches.length} client${a.matches.length===1?'e':'i'})</div>`
+  ).join('');
+
+  banner.classList.add('open');
+}
+
+function dismissAlert() {
+  document.getElementById('alertBanner').classList.remove('open');
+}
+
+function showArrivalModal(idx) {
+  const data = pendingArrivals[idx];
+  if (!data) return;
+  currentArrivalIdx = idx;
+
+  const headline = document.getElementById('arrivalHeadline');
+  const subtitle = document.getElementById('arrivalSubtitle');
+  const product  = document.getElementById('arrivalProduct');
+  const list     = document.getElementById('arrivalClientsList');
+
+  headline.textContent = '📦 Arrivato: ' + data.product.nome;
+  subtitle.textContent = data.matches.length + ' client' + (data.matches.length===1?'e':'i') + ' in attesa · Qtà disponibile: ' + data.product.qta;
+
+  product.innerHTML = `
+    <div class="arrival-pname">${esc(data.product.nome)}</div>
+    <div class="arrival-pbc">${data.product.barcode ? 'Barcode: '+esc(data.product.barcode) : 'Senza barcode'} &nbsp;·&nbsp; Qtà: ${data.product.qta} pz &nbsp;·&nbsp; €${fmt(data.product.prezzo)}</div>
+  `;
+
+  list.innerHTML = data.matches.map(({ client, order }) => {
+    const ini = initials(client.nome, client.cognome);
+    return `<div class="arrival-client-item">
+      <div class="ac-avatar" onclick="goToClient('${client.id}')" style="cursor:pointer">${esc(ini).toUpperCase()}</div>
+      <div class="ac-info" onclick="goToClient('${client.id}')" style="cursor:pointer">
+        <div class="ac-name">${esc(client.nome)} ${esc(client.cognome)}</div>
+        <div class="ac-phone">${client.telefono ? '📞 '+esc(client.telefono) : 'Nessun telefono'} &nbsp;·&nbsp; Ordine del ${fmtDate(order.createdAt)} &nbsp;·&nbsp; Qtà: ${order.qty}</div>
+      </div>
+      ${client.telefono ? `<button class="btn btn-sm" style="background:#e7fce9;border-color:#86efac;color:#15803d;flex-shrink:0;" onclick="event.stopPropagation(); whatsAppArrival('${client.id}','${order.id}')">💬 Avvisa</button>` : ''}
+      <div class="ac-arrow" onclick="goToClient('${client.id}')" style="cursor:pointer">→</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('arrivalModal').classList.add('open');
+}
+
+function closeArrivalModal() {
+  document.getElementById('arrivalModal').classList.remove('open');
+}
+
+function markAllNotified() {
+  const data = pendingArrivals[currentArrivalIdx];
+  if (!data) return;
+  data.matches.forEach(({ order }) => {
+    const o = orders.find(x => x.id === order.id);
+    if (o) o.status = 'notified';
+  });
+  save();
+  closeArrivalModal();
+  toast('✅ ' + data.matches.length + ' ordine/i segnato/i come "Avvisato"');
+  // Aggiorna profilo se aperto
+  if (selectedClientId) renderProfile(selectedClientId);
+  renderClientList();
+  renderHeaderStats();
+}
+
+// ── WHATSAPP CLICK-TO-CHAT ─────────────────────────────────────
+// Genera un link wa.me con messaggio precompilato: l'utente deve
+// solo premere "Invia" dentro WhatsApp. Nessun invio automatico.
+function normalizePhoneForWa(telefono) {
+  if (!telefono) return null;
+  let digits = String(telefono).replace(/[^\d+]/g, '');
+  digits = digits.replace(/^00/, '+');
+  if (digits.startsWith('+')) return digits.slice(1);
+  digits = digits.replace(/^0+/, '');
+  if (digits.startsWith('39')) return digits;
+  return '39' + digits; // prefisso Italia di default
+}
+
+function sendWhatsApp(telefono, message) {
+  const num = normalizePhoneForWa(telefono);
+  if (!num) { toast('Nessun numero di telefono per questo cliente'); return; }
+  const t = encodeURIComponent(message), mode = getWaMode();
+  if (mode === 'desktop') {
+    // App WhatsApp per computer: si apre sulla chat giusta senza ricaricare nulla
+    const a = document.createElement('a'); a.href = `whatsapp://send?phone=${num}&text=${t}`;
+    document.body.appendChild(a); a.click(); a.remove();
+  } else if (mode === 'classic') {
+    window.open(`https://wa.me/${num}?text=${t}`, '_blank');
+  } else {
+    // WhatsApp Web: riusa sempre la stessa scheda, così non se ne aprono di nuove
+    const w = window.open(`https://web.whatsapp.com/send?phone=${num}&text=${t}`, 'fumetteria_whatsapp');
+    if (!w) toast('Il browser ha bloccato l\'apertura di WhatsApp: consenti i popup per questa pagina');
+  }
+}
+const KEY_WA_MODE = 'fumetteria_wa_mode';
+function getWaMode() { const m = localStorage.getItem(KEY_WA_MODE); return ['web','desktop','classic'].includes(m) ? m : 'web'; }
+function setWaMode(m) {
+  localStorage.setItem(KEY_WA_MODE, m);
+  toast('💬 Invio con: ' + ({ web: 'WhatsApp Web (stessa scheda)', desktop: 'app WhatsApp per computer', classic: 'link wa.me (nuova scheda)' }[m] || m));
+}
+
+function whatsAppClient(clientId) {
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  const msg = `Ciao ${c.nome}, ti scrivo da Fumetteria 42! 😊`;
+  sendWhatsApp(c.telefono, msg);
+}
+
+function whatsAppArrival(clientId, orderId) {
+  const c = clients.find(x => x.id === clientId);
+  const o = orders.find(x => x.id === orderId);
+  if (!c || !o) return;
+  sendWhatsApp(c.telefono, arrivalText(c, o));
+}
+
+function goToClient(clientId) {
+  closeArrivalModal();
+  selectedClientId = clientId;
+  renderClientList();
+  renderProfile(clientId);
+  // Scroll to content
+  document.getElementById('contentArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── RENDER CLIENT LIST ─────────────────────────────────────────
+function renderClientList() {
+  const q = (document.getElementById('clientSearch').value || '').toLowerCase().trim();
+  const list = document.getElementById('clientList');
+
+  let filtered = clients;
+  if (q) {
+    filtered = clients.filter(c =>
+      (c.nome+' '+c.cognome).toLowerCase().includes(q) ||
+      (c.telefono||'').toLowerCase().includes(q) ||
+      (c.email||'').toLowerCase().includes(q)
+    );
+  }
+
+  renderFolderFilter();
+  const ff = getFolderFilter();
+  if (ff === '__none__') filtered = filtered.filter(c => !c.cartellaId || !folders.some(f => f.id === c.cartellaId));
+  else if (ff !== 'all') filtered = filtered.filter(c => c.cartellaId === ff);
+
+  if (!filtered.length) {
+    const msg = q ? 'Nessun risultato' : (ff !== 'all' ? 'Nessun cliente in questa cartella.' : 'Nessun cliente.<br>Clicca "+ Nuovo" per aggiungere.');
+    list.innerHTML = `<div class="no-clients">${msg}</div>`;
+    return;
+  }
+
+  list.innerHTML = sortClients(filtered).map(c => clientRowHtml(c)).join('');
+}
+
+function clientRowHtml(c) {
+  const ini = initials(c.cognome, c.nome);
+  const clientOrders = orders.filter(o => o.clientId === c.id);
+  const activeOrders = clientOrders.filter(o => o.status !== 'arrived');
+  const hasAlert = orders.some(o => o.clientId === c.id && o.status === 'notified');
+  const isActive = c.id === selectedClientId;
+  const f = c.cartellaId ? folders.find(x => x.id === c.cartellaId) : null;
+  return `<div class="client-row ${isActive?'active':''} ${hasAlert?'has-alert':''}" onclick="selectClient('${c.id}')">
+      <div class="client-avatar">${esc(ini).toUpperCase()}</div>
+      <div class="c-info">
+        <div class="c-name">${esc(c.cognome)} ${esc(c.nome)}</div>
+        <div class="c-meta">${c.telefono ? esc(c.telefono) : 'No telefono'}${activeOrders.length ? ' · ' + activeOrders.length + ' ordine/i' : ''}${f ? ' · 📁 ' + esc(f.nome) : ''}</div>
+      </div>
+      <div class="c-alert-dot"></div>
+    </div>`;
+}
+
+function selectClient(id) {
+  selectedClientId = id;
+  renderClientList();
+  renderProfile(id);
+}
+
+// ── CARTELLE CLIENTI ─────────────────────────────────────────
+function sortedFolders() {
+  return folders.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'it', { sensitivity: 'base' }));
+}
+const KEY_FOLDER_FILTER = 'fumetteria_folder_filter';
+function getFolderFilter() {
+  const v = localStorage.getItem(KEY_FOLDER_FILTER) || 'all';
+  return (v === 'all' || v === '__none__' || folders.some(f => f.id === v)) ? v : 'all';
+}
+function setFolderFilter(v) { localStorage.setItem(KEY_FOLDER_FILTER, v); renderClientList(); }
+function renderFolderFilter() {
+  const sel = document.getElementById('folderFilter');
+  if (!sel) return;
+  sel.style.display = folders.length ? '' : 'none';
+  const known = new Set(folders.map(f => f.id));
+  const opts = [['all', '👥 Tutti i clienti (' + clients.length + ')']]
+    .concat(sortedFolders().map(f => [f.id, '📁 ' + f.nome + ' (' + clients.filter(c => c.cartellaId === f.id).length + ')']))
+    .concat(folders.length ? [['__none__', '📂 Senza cartella (' + clients.filter(c => !c.cartellaId || !known.has(c.cartellaId)).length + ')']] : []);
+  const sig = JSON.stringify(opts);
+  if (sel.dataset.sig !== sig) {
+    sel.innerHTML = opts.map(o => `<option value="${o[0]}">${esc(o[1])}</option>`).join('');
+    sel.dataset.sig = sig;
+  }
+  sel.value = getFolderFilter();
+}
+function folderNameTaken(nome, exceptId) {
+  return folders.some(f => f.id !== exceptId && f.nome.toLowerCase() === nome.toLowerCase());
+}
+function createFolder(nome) {
+  nome = (nome || '').trim();
+  if (!nome) return null;
+  if (folderNameTaken(nome)) { alert('Esiste già una cartella con questo nome.'); return null; }
+  const f = { id: uid(), nome };
+  folders.push(f);
+  save();
+  return f;
+}
+// menu "Cartella" nella scheda cliente
+function closeFolderMenu() {
+  const m = document.getElementById('folderMenu');
+  if (m) m.remove();
+}
+function openFolderMenu(e, clientId) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  const wasOpen = !!document.getElementById('folderMenu');
+  closeFolderMenu();
+  if (wasOpen) return;
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  const cur = c.cartellaId && folders.some(f => f.id === c.cartellaId) ? c.cartellaId : '';
+  const item = (id, label) =>
+    `<div class="fmenu-item ${cur === id ? 'sel' : ''}" onclick="pickFolder('${clientId}','${id}')">${cur === id ? '✓ ' : ''}${label}</div>`;
+  const menu = document.createElement('div');
+  menu.id = 'folderMenu';
+  menu.className = 'fmenu';
+  menu.innerHTML = `<div class="fmenu-title">Metti il cliente in…</div>` +
+    item('', '📂 Senza cartella') +
+    sortedFolders().map(f => item(f.id, '📁 ' + esc(f.nome))).join('') +
+    `<div class="fmenu-item new" onclick="pickFolder('${clientId}','__new__')">＋ Nuova cartella…</div>`;
+  document.body.appendChild(menu);
+  const r = btn.getBoundingClientRect();
+  const left = Math.max(8, Math.min(r.left, window.innerWidth - menu.offsetWidth - 8));
+  menu.style.left = left + 'px';
+  menu.style.top = (r.bottom + 6) + 'px';
+}
+function pickFolder(clientId, folderId) {
+  closeFolderMenu();
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  if (folderId === '__new__') {
+    const f = createFolder(prompt('Nome della nuova cartella:'));
+    if (!f) return;
+    folderId = f.id;
+  }
+  c.cartellaId = folderId || null;
+  save();
+  renderClientList();
+  renderProfile(clientId);
+  const f = folders.find(x => x.id === folderId);
+  toast(f ? '📁 Cliente messo in "' + f.nome + '"' : '📂 Cliente tolto dalla cartella');
+}
+document.addEventListener('click', e => { if (!e.target.closest('#folderMenu')) closeFolderMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFolderMenu(); });
+window.addEventListener('resize', closeFolderMenu);
+
+// select "Cartella" nel modale cliente
+function populateFolderSelect(selectedId) {
+  const sel = document.getElementById('f-cartella');
+  const valid = selectedId && folders.some(f => f.id === selectedId) ? selectedId : '';
+  sel.innerHTML = `<option value="">— Nessuna cartella —</option>` +
+    sortedFolders().map(f => `<option value="${f.id}">${esc(f.nome)}</option>`).join('') +
+    `<option value="__new__">＋ Nuova cartella…</option>`;
+  sel.value = valid;
+  sel.dataset.prev = valid;
+}
+function handleFolderSelect(sel) {
+  if (sel.value !== '__new__') { sel.dataset.prev = sel.value; return; }
+  const nome = prompt('Nome della nuova cartella:');
+  const f = createFolder(nome);
+  if (f) { populateFolderSelect(f.id); renderClientList(); }
+  else sel.value = sel.dataset.prev || '';
+}
+
+// modale gestione cartelle
+function openFoldersModal() {
+  renderFolderManager();
+  document.getElementById('folderOverlay').classList.add('open');
+  document.getElementById('f-new-folder').focus();
+}
+function closeFoldersModal() {
+  document.getElementById('folderOverlay').classList.remove('open');
+}
+function renderFolderManager() {
+  const box = document.getElementById('folderManagerList');
+  if (!folders.length) {
+    box.innerHTML = `<div style="padding:18px;text-align:center;color:var(--text-light);font-size:0.86rem;">Nessuna cartella ancora. Creane una qui sopra.</div>`;
+    return;
+  }
+  box.innerHTML = sortedFolders().map(f => {
+    const n = clients.filter(c => c.cartellaId === f.id).length;
+    return `<div class="fm-row">
+      <span>📁</span>
+      <span class="fm-name">${esc(f.nome)}</span>
+      <span class="fm-count">${n} client${n === 1 ? 'e' : 'i'}</span>
+      <button class="btn btn-secondary btn-sm" onclick="renameFolder('${f.id}')" title="Rinomina">✏️</button>
+      <button class="btn btn-secondary btn-sm" onclick="deleteFolder('${f.id}')" title="Elimina cartella">🗑</button>
+    </div>`;
+  }).join('');
+}
+function addFolderFromModal() {
+  const inp = document.getElementById('f-new-folder');
+  const f = createFolder(inp.value);
+  if (!f) { inp.focus(); return; }
+  inp.value = '';
+  renderFolderManager();
+  renderClientList();
+  toast('📁 Cartella creata');
+  inp.focus();
+}
+function renameFolder(id) {
+  const f = folders.find(x => x.id === id);
+  if (!f) return;
+  const nome = (prompt('Nuovo nome della cartella:', f.nome) || '').trim();
+  if (!nome || nome === f.nome) return;
+  if (folderNameTaken(nome, id)) { alert('Esiste già una cartella con questo nome.'); return; }
+  f.nome = nome;
+  save();
+  renderFolderManager();
+  renderClientList();
+}
+function deleteFolder(id) {
+  const f = folders.find(x => x.id === id);
+  if (!f) return;
+  const n = clients.filter(c => c.cartellaId === id).length;
+  if (!confirm(`Eliminare la cartella "${f.nome}"?` + (n ? `\n\nI ${n} client${n === 1 ? 'e' : 'i'} al suo interno NON vengono cancellati: tornano in "Senza cartella".` : ''))) return;
+  clients.forEach(c => { if (c.cartellaId === id) c.cartellaId = null; });
+  folders = folders.filter(x => x.id !== id);
+  save();
+  renderFolderManager();
+  renderClientList();
+  toast('🗑 Cartella eliminata');
+}
+
+// ── RENDER PROFILE ─────────────────────────────────────────────
+function renderProfile(clientId) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+  const area = document.getElementById('contentArea');
+
+  const clientOrders = orders.filter(o => o.clientId === clientId);
+  const waiting   = clientOrders.filter(o => o.status === 'waiting').length;
+  const notified  = clientOrders.filter(o => o.status === 'notified').length;
+  const arrived   = clientOrders.filter(o => o.status === 'arrived').length;
+  const ini = initials(client.nome, client.cognome);
+
+  const ordersHTML = clientOrders.length === 0
+    ? `<div class="no-orders">Nessun ordine registrato per questo cliente</div>`
+    : clientOrders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(o => {
+        const statusLabel = { waiting: '⏳ In attesa', notified: '📞 Avvisato', arrived: '✅ Ritirato' };
+        const badgeClass  = { waiting: 'badge-waiting', notified: 'badge-notified', arrived: 'badge-arrived' };
+        return `<div class="order-item ${o.status}">
+          <div class="order-head">
+            <div class="order-status-dot"></div>
+            <div style="flex:1;min-width:0">
+              <div class="order-product">${esc(o.productName || '—')}</div>
+              <div class="order-product-sub">${o.productBarcode ? 'Barcode: '+esc(o.productBarcode) : 'Senza barcode'}</div>
+            </div>
+            <span class="order-badge ${badgeClass[o.status]||'badge-waiting'}">${statusLabel[o.status]||o.status}</span>
+          </div>
+          <div class="order-body">
+            <span class="order-meta">📅 <strong>${fmtDate(o.createdAt)}</strong></span>
+            <span class="order-meta">📦 <strong>${o.qty} pz</strong></span>
+            ${o.price ? `<span class="order-meta">💶 <strong>€${fmt(o.price)}</strong></span>` : ''}
+            ${o.voucherUsed ? `<span class="order-meta">🎟️ <strong>buono −${eurC(o.voucherUsed)}</strong></span>` : ''}
+            ${o.note ? `<span class="order-meta">📝 ${esc(o.note)}</span>` : ''}
+            <div class="order-actions">
+              ${o.status === 'waiting' ? `<button class="btn btn-sm btn-orange" onclick="changeOrderStatus('${o.id}','notified')">📞 Avvisato</button>` : ''}
+              ${o.status === 'notified' ? `<button class="btn btn-sm btn-success" onclick="changeOrderStatus('${o.id}','arrived')">✅ Ritirato</button>` : ''}
+              ${o.status === 'arrived' ? `<span style="font-size:0.75rem;color:var(--success);font-weight:700">Completato</span>` : ''}
+              ${(o.status === 'waiting' || o.status === 'notified') && client.telefono ? `<button class="btn btn-sm" style="background:#e7fce9;border-color:#86efac;color:#15803d;" onclick="whatsAppArrival('${client.id}','${o.id}')" title="Avvisa via WhatsApp">💬</button>` : ''}
+              <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.id}')" title="Elimina ordine">🗑</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+  const freqLabel = {
+    settimanale: 'Ogni settimana', quindicinale: 'Ogni 2 settimane',
+    mensile: 'Ogni mese', bimestrale: 'Ogni 2 mesi', trimestrale: 'Ogni 3 mesi',
+    personalizzato: 'Personalizzata'
+  };
+  const todayStr = new Date().toISOString().slice(0,10);
+  const clientSubs = subscriptions.filter(s => s.clientId === clientId);
+  const subsHTML = clientSubs.length === 0
+    ? `<div class="no-subs">Nessun abbonamento attivo per questo cliente</div>`
+    : clientSubs.slice().sort((a,b) => new Date(a.nextDate) - new Date(b.nextDate)).map(s => {
+        const isDue = s.active && s.nextDate && s.nextDate <= todayStr;
+        const freqText = s.frequenza === 'personalizzato'
+          ? `Ogni ${s.freqGiorni||30} giorni`
+          : (freqLabel[s.frequenza] || s.frequenza);
+        return `<div class="sub-item ${s.active ? (isDue?'due':'') : 'paused'}">
+          <div class="sub-head">
+            <div class="sub-dot"></div>
+            <div style="flex:1;min-width:0">
+              <div class="sub-product">${esc(s.productName || '—')}</div>
+              <div class="sub-product-sub">${freqText}${s.productBarcode ? ' · '+esc(s.productBarcode) : ''}</div>
+            </div>
+            <span class="sub-badge ${!s.active?'paused-badge':(isDue?'due-badge':'')}">${!s.active?'⏸ In pausa':(isDue?'🔔 Da generare':'▶ Attivo')}</span>
+          </div>
+          <div class="sub-body">
+            <span class="sub-meta">📅 Prossima: <strong>${fmtDate(s.nextDate)}</strong></span>
+            <span class="sub-meta">📦 <strong>${s.qty} pz</strong></span>
+            ${s.price ? `<span class="sub-meta">💶 <strong>€${fmt(s.price)}</strong></span>` : ''}
+            ${s.note ? `<span class="sub-meta">📝 ${esc(s.note)}</span>` : ''}
+            <div class="sub-actions">
+              ${s.active ? `<button class="btn btn-sm" style="background:#ede9fe;border-color:#c4b5fd;color:#6d28d9;" onclick="generateOrderFromSubscription('${s.id}')">📋 Genera ordine</button>` : ''}
+              <button class="btn btn-sm btn-secondary" onclick="toggleSubscriptionPause('${s.id}')">${s.active?'⏸ Pausa':'▶ Riattiva'}</button>
+              <button class="btn btn-sm btn-secondary" onclick="openSubscriptionModal('${s.clientId}','${s.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteSubscription('${s.id}')" title="Elimina abbonamento">🗑</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+  area.innerHTML = `
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar-lg">${esc(ini).toUpperCase()}</div>
+        <div class="profile-info">
+          <div class="profile-name">${esc(client.nome)} ${esc(client.cognome)}</div>
+          <div class="profile-phone">${client.telefono ? '📞 '+esc(client.telefono) : 'Nessun telefono'}${client.email ? ' · 📧 '+esc(client.email) : ''}</div>
+        </div>
+        <div class="profile-actions">
+          ${client.telefono ? `<button class="btn btn-sm" style="background:#e7fce9;border-color:#86efac;color:#15803d;" onclick="whatsAppClient('${client.id}')">💬 WhatsApp</button>` : ''}
+          <button class="btn btn-sm btn-secondary btn-folder" onclick="openFolderMenu(event,'${client.id}')" title="Scegli la cartella di questo cliente">📁 ${esc((folders.find(f => f.id === client.cartellaId) || {}).nome || 'Cartella')} ▾</button>
+          <button class="btn btn-sm btn-secondary" onclick="openClientModal('${client.id}')">✏️ Modifica</button>
+          <button class="btn btn-sm" style="background:#f0fdf4;border-color:#86efac;color:#15803d;" onclick="openGdprModal('${client.id}')">🔒 Privacy</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteClient('${client.id}')">🗑</button>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="info-grid">
+          <div class="info-box">
+            <div class="ib-label">Ordini totali</div>
+            <div class="ib-val">${clientOrders.length}</div>
+          </div>
+          <div class="info-box" style="${waiting>0?'border-color:#fde68a;background:#fffbeb':''}">
+            <div class="ib-label">In attesa</div>
+            <div class="ib-val" style="${waiting>0?'color:var(--warning)':''}">${waiting}</div>
+          </div>
+          <div class="info-box" style="${notified>0?'border-color:#c4b5fd;background:#f5f3ff':''}">
+            <div class="ib-label">Avvisato</div>
+            <div class="ib-val" style="${notified>0?'color:var(--purple)':''}">${notified}</div>
+          </div>
+          <div class="info-box accent-box">
+            <div class="ib-label">Ritirati</div>
+            <div class="ib-val">${arrived}</div>
+          </div>
+          <div class="info-box" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div class="ib-label">Consenso GDPR</div>
+              <span class="gdpr-badge ${client.gdprConsent?'ok':'no'}">${client.gdprConsent?'✅ Prestato':'⚠ Non registrato'}</span>
+              ${client.gdprConsentDate?`<span style="font-size:0.72rem;color:var(--text-muted);margin-left:8px">${fmtDate(client.gdprConsentDate)}</span>`:''}
+            </div>
+            <button class="btn btn-sm" style="background:#f0fdf4;border-color:#86efac;color:#15803d;font-size:0.72rem;" onclick="openGdprModal('${client.id}')">🔒 Gestisci privacy</button>
+          </div>
+        </div>
+        ${client.note ? `
+        <div class="note-section">
+          <div class="note-label">Note cliente</div>
+          <div class="note-text">${esc(client.note)}</div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    ${voucherCardHTML(client)}
+
+    <div class="subs-card">
+      <div class="subs-header">
+        <span class="subs-title">🔁 Abbonamenti</span>
+        <span class="subs-count">${clientSubs.length} totali</span>
+        <button class="btn btn-sm" style="background:#fff;border-color:#fff;color:#5b21b6;" onclick="openSubscriptionModal('${client.id}')">+ Aggiungi abbonamento</button>
+      </div>
+      <div class="subs-list">${subsHTML}</div>
+    </div>
+
+    <div class="orders-card">
+      <div class="orders-header">
+        <span class="orders-title">📋 Ordini</span>
+        <span class="orders-count">${clientOrders.length} totali</span>
+        <button class="btn btn-orange btn-sm" onclick="openOrderModal('${client.id}')">+ Aggiungi ordine</button>
+      </div>
+      <div class="orders-list">${ordersHTML}</div>
+    </div>
+  `;
+}
+
+// ── CLIENT MODAL ─────────────────────────────────────────────
+// ── BUONI ACQUISTO ──────────────────────────────────────────
+// Il buono vive dentro la scheda cliente: c.buonoSaldo (centesimi) e c.buonoMov (movimenti).
+const eurC = c => (c/100).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}) + '€';
+const parseCents = v => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) && n > 0 ? Math.round(n*100) : 0; };
+const VOUCHER_MSG = {
+  ricarica: (i,s) => `Nuovo buono sbloccato! Fumetteria 42 ti accredita ${eurC(i)}: il tuo saldo è di ${eurC(s)}.`,
+  scala: (i,s) => s === 0
+    ? `Hai usato tutto il tuo buono alla Fumetteria 42. Torna a trovarci, ti aspettiamo con tante novità.`
+    : `Missione compiuta! Hai speso ${eurC(i)} alla Fumetteria 42. Il tuo tesoretto è ora di ${eurC(s)}, ti aspettiamo presto!`
+};
+function applyVoucherMovement(c, tipo, imp, nota, orderId) {
+  const cur = c.buonoSaldo || 0;
+  const nuovo = tipo === 'ricarica' ? cur + imp : cur - imp;
+  const mov = { id: uid(), tipo, importo: imp, saldoDopo: nuovo, nota: nota || '', orderId: orderId || null,
+                ts: Date.now(), testo: VOUCHER_MSG[tipo](imp, nuovo) };
+  c.buonoSaldo = nuovo;
+  c.buonoMov = (c.buonoMov || []).concat(mov);
+  save();
+  return mov;
+}
+let vchClientId = null, vchMode = 'ricarica', vchLast = null;
+function voucherCardHTML(c) {
+  const saldo = c.buonoSaldo || 0;
+  const mov = (c.buonoMov || []).slice().sort((a,b) => b.ts - a.ts).slice(0, 15);
+  const rows = mov.length ? mov.map(m => `<div class="vch-row">
+      <div><span class="${m.tipo==='ricarica'?'vch-pos':'vch-neg'}">${m.tipo==='ricarica'?'Ricarica +':'Utilizzo −'}${eurC(m.importo)}</span> · saldo ${eurC(m.saldoDopo)}
+        <div style="color:var(--text-muted);font-size:.75rem">${fmtDate(new Date(m.ts).toISOString())}${m.nota ? ' · '+esc(m.nota) : ''}</div></div>
+      ${c.telefono ? `<button class="btn btn-sm" style="background:#e7fce9;border-color:#86efac;color:#15803d;" onclick="whatsAppVoucher('${c.id}','${m.id}')">💬 Avvisa via WhatsApp</button>` : ''}
+    </div>`).join('') : `<div class="no-orders">Nessun movimento del buono</div>`;
+  return `<div class="vch-card">
+    <div class="vch-head"><div class="vch-title">🎟️ Buono acquisto</div><div class="vch-saldo">${eurC(saldo)}</div>
+      <button class="btn btn-sm btn-primary" onclick="openVoucherModal('${c.id}','ricarica')">+ Ricarica</button>
+      <button class="btn btn-sm btn-secondary" onclick="openVoucherModal('${c.id}','scala')">− Scala</button>
+      <button class="btn btn-sm btn-secondary" onclick="exportBuonoCsv('${c.id}')">⬇ CSV</button></div>
+    <div class="vch-list">${rows}</div></div>`;
+}
+function openVoucherModal(clientId, mode) {
+  const c = clients.find(x => x.id === clientId); if (!c) return;
+  vchClientId = clientId; vchLast = null;
+  document.getElementById('vchName').textContent = c.nome + ' ' + (c.cognome || '');
+  document.getElementById('vch-importo').value = '';
+  document.getElementById('vch-nota').value = '';
+  document.getElementById('vchErr').textContent = '';
+  document.getElementById('vchForm').style.display = '';
+  document.getElementById('vchResult').style.display = 'none';
+  document.getElementById('vchConfirm').style.display = '';
+  document.getElementById('vchCancel').textContent = 'Annulla';
+  setVoucherMode(mode || 'ricarica');
+  document.getElementById('voucherOverlay').classList.add('open');
+  document.getElementById('vch-importo').focus();
+}
+function closeVoucherModal() { document.getElementById('voucherOverlay').classList.remove('open'); }
+function setVoucherMode(m) {
+  vchMode = m;
+  document.getElementById('vchBtnR').classList.toggle('on', m === 'ricarica');
+  document.getElementById('vchBtnS').classList.toggle('on', m === 'scala');
+  document.getElementById('vchConfirm').textContent = m === 'ricarica' ? 'Conferma ricarica' : 'Conferma scalo';
+  updateVoucherPreview();
+}
+function updateVoucherPreview() {
+  const c = clients.find(x => x.id === vchClientId), p = document.getElementById('vchPrev'); if (!c) return;
+  const i = parseCents(document.getElementById('vch-importo').value), s = c.buonoSaldo || 0;
+  document.getElementById('vchErr').textContent = '';
+  if (!i) { p.innerHTML = '<span style="color:var(--text-muted)">Inserisci un importo per vedere il messaggio che riceverà il cliente.</span>'; return; }
+  if (vchMode === 'scala' && i > s) { p.innerHTML = `<span style="color:var(--text-muted)">Importo superiore al saldo disponibile (${eurC(s)}).</span>`; return; }
+  p.textContent = VOUCHER_MSG[vchMode](i, vchMode === 'ricarica' ? s + i : s - i);
+}
+function showVoucherResult(c, mov) {
+  vchClientId = c.id; vchLast = { clientId: c.id, movId: mov.id };
+  document.getElementById('vchName').textContent = c.nome + ' ' + (c.cognome || '');
+  document.getElementById('vchResText').textContent = mov.testo;
+  document.getElementById('vchForm').style.display = 'none';
+  document.getElementById('vchResult').style.display = '';
+  document.getElementById('vchConfirm').style.display = 'none';
+  document.getElementById('vchCancel').textContent = 'Chiudi';
+  document.getElementById('voucherOverlay').classList.add('open');
+}
+function saveVoucher() {
+  const c = clients.find(x => x.id === vchClientId); if (!c) return;
+  const err = document.getElementById('vchErr'), i = parseCents(document.getElementById('vch-importo').value);
+  if (!i) { err.textContent = 'Inserisci un importo maggiore di zero.'; return; }
+  if (vchMode === 'scala' && i > (c.buonoSaldo || 0)) { err.textContent = `Il saldo disponibile è ${eurC(c.buonoSaldo || 0)}: non puoi scalare ${eurC(i)}.`; return; }
+  const mov = applyVoucherMovement(c, vchMode, i, document.getElementById('vch-nota').value.trim());
+  renderProfile(c.id); renderClientList();
+  showVoucherResult(c, mov);
+}
+function sendVoucherWa() { if (vchLast) whatsAppVoucher(vchLast.clientId, vchLast.movId); }
+function whatsAppVoucher(clientId, movId) {
+  const c = clients.find(x => x.id === clientId); if (!c) return;
+  const m = (c.buonoMov || []).find(x => x.id === movId); if (!m) return;
+  sendWhatsApp(c.telefono, m.testo);
+}
+function offerVoucherForOrder(o) {
+  const c = clients.find(x => x.id === o.clientId); if (!c || !o.price) return;
+  const saldo = c.buonoSaldo || 0; if (saldo <= 0) return;
+  const sug = Math.min(Math.round(o.price * (o.qty || 1) * 100), saldo);
+  const ans = prompt(`Il cliente ha un buono di ${eurC(saldo)}.\nImporto da scalare per "${o.productName}" (annulla o lascia vuoto per non usare il buono):`, (sug/100).toFixed(2).replace('.', ','));
+  if (ans === null || !ans.trim()) return;
+  const imp = parseCents(ans);
+  if (!imp) { toast('Importo non valido: buono non scalato'); return; }
+  if (imp > saldo) { alert(`Il saldo disponibile è ${eurC(saldo)}: buono non scalato.`); return; }
+  const mov = applyVoucherMovement(c, 'scala', imp, 'Ordine: ' + (o.productName || ''), o.id);
+  o.voucherUsed = (o.voucherUsed || 0) + imp; save();
+  renderProfile(c.id); renderClientList();
+  showVoucherResult(c, mov);
+}
+function exportBuonoCsv(clientId) {
+  const c = clients.find(x => x.id === clientId); if (!c) return;
+  const mov = (c.buonoMov || []).slice().sort((a,b) => a.ts - b.ts);
+  if (!mov.length) { toast('Nessun movimento da esportare'); return; }
+  const cell = (v, g = true) => { let s = String(v == null ? '' : v); if (g && /^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const num = n => (n/100).toFixed(2).replace('.', ',');
+  const rows = [['Data','Tipo','Importo (€)','Saldo dopo (€)','Nota'].map(x => cell(x))].concat(mov.map(m =>
+    [cell(new Date(m.ts).toLocaleString('it-IT')), cell(m.tipo === 'ricarica' ? 'Ricarica' : 'Utilizzo'), cell(num(m.importo), false), cell(num(m.saldoDopo), false), cell(m.nota)]));
+  const blob = new Blob(['\uFEFF' + rows.map(r => r.join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `buono-${(c.cognome + '-' + c.nome).toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ── BACKUP COMPLETO ─────────────────────────────────────────
+// Include clienti (con buoni e storico buoni), ordini e abbonamenti. Il magazzino ha il suo snapshot nel gestionale.
+const KEY_LAST_BACKUP = 'fumetteria_last_backup';
+function exportBackup() {
+  const now = new Date();
+  const data = { app: 'fumetteria-clienti', version: 1, exportedAt: now.toISOString(), clients, orders, subscriptions, folders };
+  const p = n => String(n).padStart(2, '0');
+  const ts = `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}_${p(now.getHours())}${p(now.getMinutes())}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  a.download = `backup-clienti-${ts}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  localStorage.setItem(KEY_LAST_BACKUP, now.toISOString());
+  toast(`💾 Backup salvato: ${clients.length} clienti, ${orders.length} ordini, ${subscriptions.length} abbonamenti`);
+}
+function importBackupFile(e) {
+  const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const p = JSON.parse(ev.target.result);
+      if (p.app !== 'fumetteria-clienti' || !Array.isArray(p.clients) || !Array.isArray(p.orders) || !Array.isArray(p.subscriptions))
+        throw new Error('non è un backup di questa app.');
+      if (!p.clients.every(c => c && c.id)) throw new Error('i dati dei clienti non sono validi.');
+      const when = p.exportedAt ? new Date(p.exportedAt).toLocaleString('it-IT') : 'data sconosciuta';
+      if (!confirm(`Sostituire TUTTI i dati attuali (${clients.length} clienti, ${orders.length} ordini, ${subscriptions.length} abbonamenti) con il backup del ${when} (${p.clients.length} clienti, ${p.orders.length} ordini, ${p.subscriptions.length} abbonamenti)?\n\nL'operazione non è reversibile: se hai dubbi, fai prima un backup dei dati attuali.`)) return;
+      clients = p.clients; orders = p.orders; subscriptions = p.subscriptions;
+      folders = Array.isArray(p.folders) ? p.folders : [];
+      selectedClientId = null; save();
+      document.getElementById('contentArea').innerHTML = `<div class="empty-state"><div class="es-icon">👈</div><div class="es-title">Seleziona un cliente</div><div class="es-sub">Scegli un cliente dalla lista per vedere il suo profilo e gli ordini</div></div>`;
+      renderClientList(); renderHeaderStats();
+      toast(`📂 Ripristinati ${clients.length} clienti, ${orders.length} ordini, ${subscriptions.length} abbonamenti`);
+    } catch (err) { alert('Backup non valido: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+function backupReminder() {
+  if (!clients.length) return;
+  const last = localStorage.getItem(KEY_LAST_BACKUP);
+  if (!last || Date.now() - new Date(last).getTime() > 7 * 86400000) toast('💾 Ricorda di fare un backup: premi "Backup" in alto');
+}
+
+function arrivalText(c, o) {
+  const product = o.productName || 'il tuo prodotto';
+  return `Ciao ${c.nome}! 📦 È arrivato "${product}" che avevi prenotato (qtà ${o.qty}). Puoi passare a ritirarlo in negozio quando vuoi. Grazie! – Fumetteria 42`;
+}
+
+// ── CODA WHATSAPP ───────────────────────────────────────────
+// Messaggi da inviare uno dopo l'altro. Stati: pending → opened (chat aperta) → sent (inviato).
+// L'invio vero resta manuale: premi Invio dentro WhatsApp.
+const KEY_WA_QUEUE = 'fumetteria_wa_queue';
+let waQueue = [];
+try { waQueue = JSON.parse(localStorage.getItem(KEY_WA_QUEUE) || '[]'); } catch (e) { waQueue = []; }
+if (!Array.isArray(waQueue)) waQueue = [];
+function saveQueue() { localStorage.setItem(KEY_WA_QUEUE, JSON.stringify(waQueue)); updateQueueBadge(); }
+function updateQueueBadge() {
+  const n = waQueue.filter(i => i.status !== 'sent').length, el = document.getElementById('queueCount');
+  if (el) el.textContent = n ? '(' + n + ')' : '';
+}
+function queueAdd(items) {
+  let added = 0, skipped = 0;
+  items.forEach(it => {
+    const c = clients.find(x => x.id === it.clientId);
+    if (!c || !c.telefono) { skipped++; return; }
+    const dup = waQueue.some(q => q.status !== 'sent' && ((it.orderId && q.orderId === it.orderId) || (it.movId && q.movId === it.movId)));
+    if (dup) { skipped++; return; }
+    waQueue.push({ id: uid(), clientId: c.id, nome: (c.nome + ' ' + (c.cognome || '')).trim(), kind: it.kind, orderId: it.orderId || null, movId: it.movId || null, testo: it.testo, status: 'pending', ts: Date.now() });
+    added++;
+  });
+  saveQueue();
+  return { added, skipped };
+}
+function queueArrivals() {
+  const data = pendingArrivals[currentArrivalIdx]; if (!data) return;
+  const r = queueAdd(data.matches.map(({ client, order }) => ({ clientId: client.id, kind: 'ordine', orderId: order.id, testo: arrivalText(client, order) })));
+  closeArrivalModal();
+  toast('📨 ' + r.added + ' in coda' + (r.skipped ? ' · ' + r.skipped + ' saltati (senza telefono o già in coda)' : ''));
+  openQueue();
+}
+function queueVoucher() {
+  if (!vchLast) return;
+  const c = clients.find(x => x.id === vchLast.clientId), m = c && (c.buonoMov || []).find(x => x.id === vchLast.movId);
+  if (!m) return;
+  const r = queueAdd([{ clientId: c.id, kind: 'buono', movId: m.id, testo: m.testo }]);
+  toast(r.added ? '📨 Aggiunto alla coda' : 'Non aggiunto: senza telefono o già in coda');
+}
+function openQueue() { renderQueue(); document.getElementById('queueOverlay').classList.add('open'); }
+function closeQueue() { document.getElementById('queueOverlay').classList.remove('open'); }
+function queueMarkSent(it) {
+  it.status = 'sent';
+  if (it.kind === 'ordine' && it.orderId) {
+    const o = orders.find(x => x.id === it.orderId);
+    if (o && o.status === 'waiting') {
+      o.status = 'notified'; save();
+      if (selectedClientId) renderProfile(selectedClientId);
+      renderClientList(); renderHeaderStats();
+    }
+  }
+}
+function queueOpenItem(it) {
+  const c = clients.find(x => x.id === it.clientId);
+  if (!c || !c.telefono) { toast('Cliente o telefono non più disponibile: tolto dalla coda'); waQueue = waQueue.filter(x => x !== it); saveQueue(); renderQueue(); return; }
+  sendWhatsApp(c.telefono, it.testo);
+  if (it.status === 'pending') it.status = 'opened';
+  saveQueue(); renderQueue();
+}
+function queueNext() {
+  const cur = waQueue.find(i => i.status === 'opened');
+  if (cur) queueMarkSent(cur);
+  const next = waQueue.find(i => i.status === 'pending');
+  if (!next) { saveQueue(); renderQueue(); toast('📨 Coda completata'); return; }
+  queueOpenItem(next);
+}
+function queueAct(id, act) {
+  const it = waQueue.find(x => x.id === id); if (!it) return;
+  if (act === 'open') return queueOpenItem(it);
+  if (act === 'sent') queueMarkSent(it);
+  if (act === 'remove') waQueue = waQueue.filter(x => x !== it);
+  saveQueue(); renderQueue();
+}
+function queueClear(onlySent) {
+  const left = onlySent ? waQueue.filter(i => i.status !== 'sent') : [];
+  if (!onlySent && waQueue.some(i => i.status !== 'sent') && !confirm('Svuotare la coda? Ci sono messaggi non ancora inviati.')) return;
+  waQueue = left; saveQueue(); renderQueue();
+}
+function renderQueue() {
+  const cur = waQueue.find(i => i.status === 'opened'), next = waQueue.find(i => i.status === 'pending');
+  const sent = waQueue.filter(i => i.status === 'sent').length, left = waQueue.length - sent;
+  document.getElementById('queueSummary').textContent = waQueue.length ? `${sent} inviati su ${waQueue.length} · ${left} da inviare` : 'La coda è vuota';
+  const btn = document.getElementById('queueMain');
+  btn.disabled = !cur && !next;
+  btn.textContent = cur ? (next ? `✅ Inviato — apri il prossimo (${next.nome})` : '✅ Inviato — concludi la coda')
+                  : next ? `💬 Apri la prima chat (${next.nome})` : 'Nessun messaggio da inviare';
+  const label = { pending: 'In attesa', opened: 'Chat aperta', sent: '✓ Inviato' }, kind = { ordine: 'Ordine arrivato', buono: 'Buono acquisto' };
+  document.getElementById('queueList').innerHTML = waQueue.map(i => `<div class="vch-row">
+      <div style="flex:1;min-width:200px"><strong>${esc(i.nome)}</strong> · <span style="color:var(--text-muted)">${kind[i.kind] || 'Messaggio'}</span>
+        <div style="color:var(--text-muted);font-size:.78rem">${esc(i.testo)}</div></div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-weight:700;font-size:.8rem">${label[i.status]}</span>
+        <button class="btn btn-sm" onclick="queueAct('${i.id}','open')">Apri</button>
+        ${i.status !== 'sent' ? `<button class="btn btn-sm" onclick="queueAct('${i.id}','sent')" title="Segna come inviato">✓</button>` : ''}
+        <button class="btn btn-sm" onclick="queueAct('${i.id}','remove')" title="Togli dalla coda">✕</button></div></div>`).join('');
+}
+
+// ── ORDINAMENTO LISTA CLIENTI ───────────────────────────────
+const KEY_CLIENT_SORT = 'fumetteria_client_sort';
+const SORT_MODES = ['insert', 'recent', 'az', 'za', 'activity', 'open', 'saldo'];
+function getClientSort() { const m = localStorage.getItem(KEY_CLIENT_SORT); return SORT_MODES.includes(m) ? m : 'insert'; }
+function setClientSort(m) { localStorage.setItem(KEY_CLIENT_SORT, m); renderClientList(); }
+function sortClients(list) {
+  const mode = getClientSort();
+  if (mode === 'insert') return list;
+  const idx = new Map(clients.map((c, i) => [c.id, i]));
+  const name = c => ((c.cognome || '') + ' ' + (c.nome || '')).trim();
+  const cmpName = (a, b) => name(a).localeCompare(name(b), 'it', { sensitivity: 'base' });
+  const lastMap = new Map(), openMap = new Map();
+  if (mode === 'activity' || mode === 'open') {
+    orders.forEach(o => {
+      const t = Date.parse(o.createdAt) || 0;
+      if (t > (lastMap.get(o.clientId) || 0)) lastMap.set(o.clientId, t);
+      if (o.status !== 'arrived') openMap.set(o.clientId, (openMap.get(o.clientId) || 0) + 1);
+    });
+  }
+  const last = c => Math.max(Date.parse(c.createdAt) || 0, lastMap.get(c.id) || 0, ...(c.buonoMov || []).map(m => m.ts || 0));
+  const cmp = {
+    recent:   (a, b) => idx.get(b.id) - idx.get(a.id),
+    az:       cmpName,
+    za:       (a, b) => cmpName(b, a),
+    activity: (a, b) => last(b) - last(a) || cmpName(a, b),
+    open:     (a, b) => (openMap.get(b.id) || 0) - (openMap.get(a.id) || 0) || cmpName(a, b),
+    saldo:    (a, b) => (b.buonoSaldo || 0) - (a.buonoSaldo || 0) || cmpName(a, b)
+  }[mode];
+  return list.slice().sort(cmp);
+}
+
+function openClientModal(id = null) {
+  editingClientId = id;
+  const c = id ? clients.find(x => x.id === id) : null;
+  document.getElementById('clientModalTitle').textContent = c ? '✏️ Modifica Cliente' : '👤 Nuovo Cliente';
+  document.getElementById('f-nome').value = c?.nome || '';
+  document.getElementById('f-cognome').value = c?.cognome || '';
+  document.getElementById('f-telefono').value = c?.telefono || '';
+  document.getElementById('f-email').value = c?.email || '';
+  document.getElementById('f-note-cliente').value = c?.note || '';
+  populateFolderSelect(c?.cartellaId || '');
+  // GDPR: mostra checkbox consenso solo per nuovi clienti o se non già prestato
+  const gdprRow = document.getElementById('gdprConsentRow');
+  const gdprCheck = document.getElementById('f-gdpr-consent');
+  if (c) {
+    if (c.gdprConsent) {
+      gdprRow.style.display = 'none'; // già prestato, non mostrare di nuovo
+    } else {
+      gdprRow.style.display = '';
+      gdprCheck.checked = false;
+    }
+  } else {
+    gdprRow.style.display = '';
+    gdprCheck.checked = false;
+  }
+  document.getElementById('clientOverlay').classList.add('open');
+  document.getElementById('f-nome').focus();
+}
+
+function closeClientModal() {
+  document.getElementById('clientOverlay').classList.remove('open');
+  editingClientId = null;
+}
+
+function handleClientOverlay(e) {
+  if (e.target === document.getElementById('clientOverlay')) closeClientModal();
+}
+
+function saveClient() {
+  const nome    = document.getElementById('f-nome').value.trim();
+  const cognome = document.getElementById('f-cognome').value.trim();
+  const telefono = document.getElementById('f-telefono').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const note    = document.getElementById('f-note-cliente').value.trim();
+  const cartellaSel = document.getElementById('f-cartella').value;
+  const cartellaId = cartellaSel && cartellaSel !== '__new__' ? cartellaSel : null;
+  const gdprChecked = document.getElementById('f-gdpr-consent').checked;
+  const gdprRowVisible = document.getElementById('gdprConsentRow').style.display !== 'none';
+
+  if (!nome) { alert('Inserisci almeno il nome.'); return; }
+
+  // Per nuovi clienti, il consenso è obbligatorio
+  if (!editingClientId && !gdprChecked) {
+    alert('⚠ È necessario raccogliere il consenso al trattamento dei dati personali (GDPR) prima di registrare un cliente.');
+    return;
+  }
+
+  if (editingClientId) {
+    const c = clients.find(x => x.id === editingClientId);
+    Object.assign(c, { nome, cognome, telefono, email, note, cartellaId });
+    // Aggiorna consenso se la checkbox era visibile e ora è spuntata
+    if (gdprRowVisible && gdprChecked && !c.gdprConsent) {
+      c.gdprConsent = true;
+      c.gdprConsentDate = new Date().toISOString();
+    }
+  } else {
+    clients.push({
+      id: uid(), nome, cognome, telefono, email, note, cartellaId,
+      createdAt: new Date().toISOString(),
+      gdprConsent: true,
+      gdprConsentDate: new Date().toISOString()
+    });
+  }
+  save();
+  closeClientModal();
+  renderClientList();
+  renderHeaderStats();
+  if (editingClientId && selectedClientId === editingClientId) renderProfile(editingClientId);
+  toast(editingClientId ? '✅ Cliente aggiornato' : '✅ Cliente aggiunto');
+  editingClientId = null;
+}
+
+function deleteClient(id) {
+  if (!confirm('Eliminare questo cliente e tutti i suoi ordini?')) return;
+  clients = clients.filter(c => c.id !== id);
+  orders  = orders.filter(o => o.clientId !== id);
+  subscriptions = subscriptions.filter(s => s.clientId !== id);
+  save();
+  if (selectedClientId === id) {
+    selectedClientId = null;
+    document.getElementById('contentArea').innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">👈</div>
+        <div class="es-title">Seleziona un cliente</div>
+        <div class="es-sub">Scegli un cliente dalla lista per vedere il suo profilo e gli ordini</div>
+      </div>`;
+  }
+  renderClientList();
+  renderHeaderStats();
+  toast('🗑 Cliente eliminato');
+}
+
+// ── ORDER MODAL ─────────────────────────────────────────────
+function openOrderModal(clientId) {
+  selectedOrderClientId = clientId;
+  editingOrderId = null;
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('orderModalTitle').textContent = '📋 Nuovo Ordine';
+  document.getElementById('f-prodotto-search').value = '';
+  document.getElementById('f-prodotto-nome').value = '';
+  document.getElementById('f-prodotto-barcode').value = '';
+  document.getElementById('f-order-qty').value = '1';
+  document.getElementById('f-order-price').value = '';
+  document.getElementById('f-order-date').value = today;
+  document.getElementById('f-order-note').value = '';
+  document.getElementById('productDropdown').classList.remove('open');
+  document.getElementById('orderOverlay').classList.add('open');
+  document.getElementById('f-prodotto-search').focus();
+}
+
+function closeOrderModal() {
+  document.getElementById('orderOverlay').classList.remove('open');
+  document.getElementById('productDropdown').classList.remove('open');
+  editingOrderId = null;
+}
+
+function handleOrderOverlay(e) {
+  if (e.target === document.getElementById('orderOverlay')) closeOrderModal();
+}
+
+function searchProducts(q) {
+  const dd = document.getElementById('productDropdown');
+  if (!q || q.length < 2) { dd.classList.remove('open'); return; }
+
+  const lower = q.toLowerCase();
+  const results = products.filter(p =>
+    p.nome.toLowerCase().includes(lower) || (p.barcode||'').toLowerCase().includes(lower)
+  ).slice(0, 10);
+
+  if (!results.length) {
+    dd.innerHTML = `<div class="pdd-empty">Nessun prodotto trovato in magazzino</div>`;
+    dd.classList.add('open');
+    return;
+  }
+
+  dd.innerHTML = results.map(p =>
+    `<div class="pdd-item" onclick="selectProduct('${p.id}')">
+      <div>
+        <div style="font-weight:700;font-size:0.84rem">${esc(p.nome)}</div>
+        <div class="pdd-bc">${p.barcode || '—'}</div>
+      </div>
+      <span class="pdd-stock ${p.qta===0?'out':''}">${p.qta===0?'Esaurito':p.qta+' pz'}</span>
+    </div>`
+  ).join('');
+  dd.classList.add('open');
+}
+
+function selectProduct(productId) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  document.getElementById('f-prodotto-search').value = p.nome;
+  document.getElementById('f-prodotto-nome').value = p.nome;
+  document.getElementById('f-prodotto-barcode').value = p.barcode || '';
+  document.getElementById('f-order-price').value = p.prezzo || '';
+  document.getElementById('productDropdown').classList.remove('open');
+  // Salva l'ID magazzino nel dataset del form (lo recuperiamo in saveOrder)
+  document.getElementById('f-prodotto-search').dataset.magazzinoId = productId;
+}
+
+function saveOrder() {
+  const nome    = document.getElementById('f-prodotto-nome').value.trim();
+  const barcode = document.getElementById('f-prodotto-barcode').value.trim();
+  const qty     = parseInt(document.getElementById('f-order-qty').value) || 1;
+  const price   = parseFloat(document.getElementById('f-order-price').value) || 0;
+  const dateVal = document.getElementById('f-order-date').value;
+  const note    = document.getElementById('f-order-note').value.trim();
+  const magazzinoId = document.getElementById('f-prodotto-search').dataset.magazzinoId || null;
+
+  if (!nome) { alert('Inserisci il nome del prodotto.'); return; }
+
+  orders.push({
+    id: uid(),
+    clientId: selectedOrderClientId,
+    productName: nome,
+    productBarcode: barcode,
+    productMagazzinoId: magazzinoId,
+    qty,
+    price: price || null,
+    note,
+    status: 'waiting',
+    createdAt: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString()
+  });
+
+  save();
+  closeOrderModal();
+  renderProfile(selectedOrderClientId);
+  renderClientList();
+  renderHeaderStats();
+  toast('📋 Ordine aggiunto');
+}
+
+function changeOrderStatus(orderId, newStatus) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  o.status = newStatus;
+  save();
+  if (selectedClientId) renderProfile(selectedClientId);
+  renderClientList();
+  renderHeaderStats();
+  const labels = { notified: '📞 Cliente segnato come avvisato', arrived: '✅ Ordine completato' };
+  toast(labels[newStatus] || 'Aggiornato');
+  if (newStatus === 'arrived') offerVoucherForOrder(o);
+}
+
+function deleteOrder(orderId) {
+  if (!confirm('Eliminare questo ordine?')) return;
+  orders = orders.filter(o => o.id !== orderId);
+  save();
+  if (selectedClientId) renderProfile(selectedClientId);
+  renderHeaderStats();
+  toast('🗑 Ordine eliminato');
+}
+
+// ── SUBSCRIPTION MODAL (abbonamenti / ordini ricorrenti) ────
+function openSubscriptionModal(clientId, subId = null) {
+  selectedSubClientId = clientId;
+  editingSubId = subId;
+  const s = subId ? subscriptions.find(x => x.id === subId) : null;
+  const today = new Date().toISOString().slice(0,10);
+
+  document.getElementById('subModalTitle').textContent = s ? '✏️ Modifica Abbonamento' : '🔁 Nuovo Abbonamento';
+  document.getElementById('f-sub-prodotto-search').value = s?.productName || '';
+  document.getElementById('f-sub-prodotto-nome').value = s?.productName || '';
+  document.getElementById('f-sub-prodotto-barcode').value = s?.productBarcode || '';
+  document.getElementById('f-sub-qty').value = s?.qty || 1;
+  document.getElementById('f-sub-price').value = s?.price || '';
+  document.getElementById('f-sub-frequenza').value = s?.frequenza || 'mensile';
+  document.getElementById('f-sub-freq-giorni').value = s?.freqGiorni || 30;
+  document.getElementById('f-sub-next-date').value = s?.nextDate || today;
+  document.getElementById('f-sub-note').value = s?.note || '';
+  document.getElementById('f-sub-prodotto-search').dataset.magazzinoId = s?.productMagazzinoId || '';
+  document.getElementById('subProductDropdown').classList.remove('open');
+  toggleCustomFreqField();
+  document.getElementById('subOverlay').classList.add('open');
+  document.getElementById('f-sub-prodotto-search').focus();
+}
+
+function closeSubscriptionModal() {
+  document.getElementById('subOverlay').classList.remove('open');
+  document.getElementById('subProductDropdown').classList.remove('open');
+  editingSubId = null;
+}
+
+function handleSubOverlay(e) {
+  if (e.target === document.getElementById('subOverlay')) closeSubscriptionModal();
+}
+
+function toggleCustomFreqField() {
+  const isCustom = document.getElementById('f-sub-frequenza').value === 'personalizzato';
+  document.getElementById('subCustomFreqField').style.display = isCustom ? '' : 'none';
+}
+
+function searchSubProducts(q) {
+  const dd = document.getElementById('subProductDropdown');
+  if (!q || q.length < 2) { dd.classList.remove('open'); return; }
+
+  const lower = q.toLowerCase();
+  const results = products.filter(p =>
+    p.nome.toLowerCase().includes(lower) || (p.barcode||'').toLowerCase().includes(lower)
+  ).slice(0, 10);
+
+  if (!results.length) {
+    dd.innerHTML = `<div class="pdd-empty">Nessun prodotto trovato in magazzino</div>`;
+    dd.classList.add('open');
+    return;
+  }
+
+  dd.innerHTML = results.map(p =>
+    `<div class="pdd-item" onclick="selectSubProduct('${p.id}')">
+      <div>
+        <div style="font-weight:700;font-size:0.84rem">${esc(p.nome)}</div>
+        <div class="pdd-bc">${p.barcode || '—'}</div>
+      </div>
+      <span class="pdd-stock ${p.qta===0?'out':''}">${p.qta===0?'Esaurito':p.qta+' pz'}</span>
+    </div>`
+  ).join('');
+  dd.classList.add('open');
+}
+
+function selectSubProduct(productId) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  document.getElementById('f-sub-prodotto-search').value = p.nome;
+  document.getElementById('f-sub-prodotto-nome').value = p.nome;
+  document.getElementById('f-sub-prodotto-barcode').value = p.barcode || '';
+  document.getElementById('f-sub-price').value = p.prezzo || '';
+  document.getElementById('subProductDropdown').classList.remove('open');
+  document.getElementById('f-sub-prodotto-search').dataset.magazzinoId = productId;
+}
+
+// Calcola la prossima data di consegna in base alla frequenza scelta
+function computeNextDate(fromDateStr, frequenza, freqGiorni) {
+  const d = new Date(fromDateStr + 'T00:00:00');
+  switch (frequenza) {
+    case 'settimanale':    d.setDate(d.getDate() + 7); break;
+    case 'quindicinale':   d.setDate(d.getDate() + 14); break;
+    case 'mensile':        d.setMonth(d.getMonth() + 1); break;
+    case 'bimestrale':     d.setMonth(d.getMonth() + 2); break;
+    case 'trimestrale':    d.setMonth(d.getMonth() + 3); break;
+    case 'personalizzato': d.setDate(d.getDate() + (parseInt(freqGiorni) || 30)); break;
+    default:               d.setMonth(d.getMonth() + 1);
+  }
+  return d.toISOString().slice(0,10);
+}
+
+function saveSubscription() {
+  const nome    = document.getElementById('f-sub-prodotto-nome').value.trim();
+  const barcode = document.getElementById('f-sub-prodotto-barcode').value.trim();
+  const qty     = parseInt(document.getElementById('f-sub-qty').value) || 1;
+  const price   = parseFloat(document.getElementById('f-sub-price').value) || 0;
+  const frequenza = document.getElementById('f-sub-frequenza').value;
+  const freqGiorni = parseInt(document.getElementById('f-sub-freq-giorni').value) || 30;
+  const nextDate = document.getElementById('f-sub-next-date').value;
+  const note    = document.getElementById('f-sub-note').value.trim();
+  const magazzinoId = document.getElementById('f-sub-prodotto-search').dataset.magazzinoId || null;
+
+  if (!nome) { alert('Inserisci il nome del prodotto.'); return; }
+  if (!nextDate) { alert('Inserisci la data della prossima consegna.'); return; }
+
+  if (editingSubId) {
+    const s = subscriptions.find(x => x.id === editingSubId);
+    Object.assign(s, {
+      productName: nome, productBarcode: barcode, productMagazzinoId: magazzinoId,
+      qty, price: price || null, frequenza, freqGiorni, nextDate, note
+    });
+  } else {
+    subscriptions.push({
+      id: uid(),
+      clientId: selectedSubClientId,
+      productName: nome,
+      productBarcode: barcode,
+      productMagazzinoId: magazzinoId,
+      qty,
+      price: price || null,
+      frequenza,
+      freqGiorni,
+      nextDate,
+      note,
+      active: true,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  save();
+  closeSubscriptionModal();
+  renderProfile(selectedSubClientId);
+  renderClientList();
+  toast(editingSubId ? '✅ Abbonamento aggiornato' : '🔁 Abbonamento aggiunto');
+  editingSubId = null;
+}
+
+function toggleSubscriptionPause(subId) {
+  const s = subscriptions.find(x => x.id === subId);
+  if (!s) return;
+  s.active = !s.active;
+  save();
+  if (selectedClientId) renderProfile(selectedClientId);
+  toast(s.active ? '▶ Abbonamento riattivato' : '⏸ Abbonamento in pausa');
+}
+
+function deleteSubscription(subId) {
+  if (!confirm('Eliminare questo abbonamento?')) return;
+  subscriptions = subscriptions.filter(s => s.id !== subId);
+  save();
+  if (selectedClientId) renderProfile(selectedClientId);
+  toast('🗑 Abbonamento eliminato');
+}
+
+// Genera un nuovo ordine (in attesa) a partire da un abbonamento e
+// fa avanzare la data della prossima consegna in base alla frequenza.
+function generateOrderFromSubscription(subId) {
+  const s = subscriptions.find(x => x.id === subId);
+  if (!s) return;
+
+  orders.push({
+    id: uid(),
+    clientId: s.clientId,
+    productName: s.productName,
+    productBarcode: s.productBarcode,
+    productMagazzinoId: s.productMagazzinoId,
+    qty: s.qty,
+    price: s.price || null,
+    note: s.note ? `[Da abbonamento] ${s.note}` : '[Da abbonamento]',
+    status: 'waiting',
+    createdAt: new Date().toISOString(),
+    fromSubscriptionId: s.id
+  });
+
+  s.nextDate = computeNextDate(s.nextDate, s.frequenza, s.freqGiorni);
+
+  save();
+  if (selectedClientId) renderProfile(selectedClientId);
+  renderClientList();
+  renderHeaderStats();
+  toast('📋 Ordine generato dall\'abbonamento');
+}
+
+// Controlla all'avvio se ci sono abbonamenti scaduti (data raggiunta) e attivi
+function checkDueSubscriptions() {
+  const todayStr = new Date().toISOString().slice(0,10);
+  const due = subscriptions.filter(s => s.active && s.nextDate && s.nextDate <= todayStr);
+  if (due.length) {
+    toast(`🔔 ${due.length} abbonamento/i da rinnovare`);
+  }
+}
+
+// ── IMPORT MODAL (sfoglia magazzino) ─────────────────────────
+function openImportModal() {
+  syncWithMagazzino();
+  document.getElementById('importSearch').value = '';
+  renderImportList();
+  document.getElementById('importOverlay').classList.add('open');
+}
+
+function closeImportModal() {
+  document.getElementById('importOverlay').classList.remove('open');
+}
+
+function renderImportList() {
+  const q = (document.getElementById('importSearch').value || '').toLowerCase().trim();
+  const list = document.getElementById('importList');
+
+  if (!products.length) {
+    list.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text-muted);font-size:0.84rem">Nessun prodotto trovato. Assicurati di avere il Gestionale Magazzino aperto e premi Sync.</div>`;
+    return;
+  }
+
+  const filtered = q
+    ? products.filter(p => p.nome.toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q))
+    : products;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted)">Nessun risultato</div>`;
+    return;
+  }
+
+  const catLabel = { fumetti:'📚', manga:'🇯🇵', tcg:'🃏', gadget:'🎁', altro:'📦', funko:'🎭', tavolo:'🎲', statuine:'🗿', giochi:'🎮', alimenti:'🍕' };
+
+  list.innerHTML = filtered.slice(0, 50).map(p =>
+    `<div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.1s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''" onclick="useProductFromImport('${p.id}')">
+      <span style="font-size:1.1rem">${catLabel[p.categoria]||'📦'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.nome)}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--text-muted)">${p.barcode||'—'} · ${p.qta} pz · €${fmt(p.prezzo)}</div>
+      </div>
+      <span style="font-size:0.75rem;font-weight:700;color:${p.qta===0?'var(--danger)':p.qta<=5?'var(--warning)':'var(--success)'}">${p.qta===0?'Esaurito':p.qta<=5?'Basso':p.qta+' pz'}</span>
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();useProductFromImport('${p.id}')">Usa</button>
+    </div>`
+  ).join('');
+}
+
+function useProductFromImport(productId) {
+  if (!selectedClientId) {
+    alert('Seleziona prima un cliente dalla lista.');
+    closeImportModal();
+    return;
+  }
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  closeImportModal();
+  openOrderModal(selectedClientId);
+  setTimeout(() => {
+    document.getElementById('f-prodotto-search').value = p.nome;
+    document.getElementById('f-prodotto-nome').value = p.nome;
+    document.getElementById('f-prodotto-barcode').value = p.barcode || '';
+    document.getElementById('f-order-price').value = p.prezzo || '';
+    document.getElementById('f-prodotto-search').dataset.magazzinoId = productId;
+  }, 100);
+}
+
+// ── HEADER STATS ─────────────────────────────────────────────
+function renderHeaderStats() {
+  document.getElementById('h-clienti').textContent = clients.length;
+  const activeOrders = orders.filter(o => o.status !== 'arrived').length;
+  document.getElementById('h-ordini').textContent = activeOrders;
+}
+
+// ── AUTO-SYNC CON STORAGE EVENTS ────────────────────────────
+// Ascolta i cambiamenti nel localStorage per rilevare nuovi prodotti
+// inseriti nel gestionale magazzino in un'altra scheda/finestra
+window.addEventListener('storage', function(e) {
+  if (e.key === KEY_PRODUCTS) {
+    const newProducts = JSON.parse(e.newValue || '[]');
+    const oldProducts = products;
+
+    // Cerca prodotti nuovi o con qta aumentata da 0
+    const newArrivals = newProducts.filter(np => {
+      const old = oldProducts.find(op => op.id === np.id);
+      return (!old && np.qta > 0) || (old && old.qta === 0 && np.qta > 0);
+    });
+
+    products = newProducts;
+    updateSyncStatus(true);
+
+    if (newArrivals.length) {
+      // Controlla se qualche cliente ha ordini per questi prodotti
+      let found = false;
+      newArrivals.forEach(product => {
+        const matchingOrders = orders.filter(o =>
+          o.status === 'waiting' &&
+          (
+            (o.productBarcode && product.barcode && o.productBarcode === product.barcode) ||
+            (o.productMagazzinoId && o.productMagazzinoId === product.id) ||
+            (o.productName && product.nome && o.productName.toLowerCase() === product.nome.toLowerCase())
+          )
+        );
+        if (matchingOrders.length) {
+          found = true;
+          const matchClients = matchingOrders.map(o => {
+            const c = clients.find(cl => cl.id === o.clientId);
+            return { client: c, order: o };
+          }).filter(x => x.client);
+          if (matchClients.length) {
+            if (!pendingArrivals.find(a => a.product.id === product.id)) {
+              pendingArrivals.push({ product, matches: matchClients });
+            }
+          }
+        }
+      });
+
+      if (found && pendingArrivals.length) {
+        showAlertBanner(pendingArrivals);
+        showArrivalModal(0);
+      }
+    }
+  }
+});
+
+// ── GDPR ─────────────────────────────────────────────────────
+let gdprClientId = null;
+
+function openGdprModal(clientId) {
+  gdprClientId = clientId;
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+
+  document.getElementById('gdprClientName').textContent = `${c.nome} ${c.cognome}`;
+
+  const statusEl = document.getElementById('gdprConsentStatus');
+  if (c.gdprConsent) {
+    statusEl.innerHTML = `
+      <div class="gdpr-info-box">
+        <h4>✅ Consenso al trattamento prestato</h4>
+        Data raccolta: <strong>${fmtDate(c.gdprConsentDate)}</strong><br>
+        Il cliente ha acconsentito al trattamento dei propri dati personali ai sensi del GDPR.
+        <div style="margin-top:10px">
+          <button class="btn btn-sm" style="background:#fee2e2;border-color:#fca5a5;color:#b91c1c;" onclick="revokeGdprConsent()">↩ Revoca consenso</button>
+        </div>
+      </div>`;
+  } else {
+    statusEl.innerHTML = `
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--radius);padding:14px 16px;margin-bottom:0">
+        <div style="font-weight:700;font-size:0.84rem;color:#c2410c;margin-bottom:6px">⚠ Consenso non registrato</div>
+        <div style="font-size:0.8rem;color:#9a3412;line-height:1.5;margin-bottom:10px">
+          Nessun consenso al trattamento dati risulta registrato per questo cliente.
+          È necessario raccoglierlo prima di continuare a trattare i dati personali.
+        </div>
+        <button class="btn btn-sm btn-success" onclick="registerGdprConsent()">✅ Registra consenso ora</button>
+      </div>`;
+  }
+
+  document.getElementById('gdprClientOverlay').classList.add('open');
+}
+
+function closeGdprModal() {
+  document.getElementById('gdprClientOverlay').classList.remove('open');
+  gdprClientId = null;
+}
+
+function registerGdprConsent() {
+  const c = clients.find(x => x.id === gdprClientId);
+  if (!c) return;
+  if (!confirm(`Registrare il consenso GDPR per ${c.nome} ${c.cognome}?\n\nAttenzione: il consenso deve essere raccolto fisicamente dal cliente (firma su modulo cartaceo o dichiarazione verbale registrata).`)) return;
+  c.gdprConsent = true;
+  c.gdprConsentDate = new Date().toISOString();
+  save();
+  toast('✅ Consenso GDPR registrato');
+  openGdprModal(gdprClientId); // refresh
+  if (selectedClientId === gdprClientId) renderProfile(gdprClientId);
+}
+
+function revokeGdprConsent() {
+  const c = clients.find(x => x.id === gdprClientId);
+  if (!c) return;
+  if (!confirm(`Revocare il consenso al trattamento dati per ${c.nome} ${c.cognome}?\n\nAttenzione: dopo la revoca non sarà più possibile trattare i dati per finalità commerciali. Il cliente potrebbe richiedere anche la cancellazione dei dati.`)) return;
+  c.gdprConsent = false;
+  c.gdprConsentDate = null;
+  c.gdprRevokeDate = new Date().toISOString();
+  save();
+  toast('↩ Consenso GDPR revocato');
+  openGdprModal(gdprClientId);
+  if (selectedClientId === gdprClientId) renderProfile(gdprClientId);
+}
+
+function exportClientData() {
+  const c = clients.find(x => x.id === gdprClientId);
+  if (!c) return;
+  const clientOrders = orders.filter(o => o.clientId === gdprClientId);
+
+  const exportData = {
+    exportDate: new Date().toISOString(),
+    exportReason: 'Richiesta portabilità dati - Art. 20 GDPR',
+    cliente: {
+      nome: c.nome,
+      cognome: c.cognome,
+      telefono: c.telefono || null,
+      email: c.email || null,
+      note: c.note || null,
+      dataRegistrazione: c.createdAt || null,
+      consensoGDPR: c.gdprConsent || false,
+      dataConsenso: c.gdprConsentDate || null
+    },
+    buono: { saldo: (c.buonoSaldo || 0) / 100, movimenti: (c.buonoMov || []).map(m => ({ data: new Date(m.ts).toISOString(), tipo: m.tipo, importo: m.importo / 100, saldoDopo: m.saldoDopo / 100, nota: m.nota || null })) },
+    ordini: clientOrders.map(o => ({
+      prodotto: o.productName,
+      barcode: o.productBarcode || null,
+      quantita: o.qty,
+      prezzo: o.price || null,
+      stato: o.status,
+      dataOrdine: o.createdAt,
+      note: o.note || null
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `dati-cliente-${c.nome.toLowerCase()}-${c.cognome.toLowerCase()}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📦 Dati esportati');
+}
+
+function gdprDeleteClient() {
+  const c = clients.find(x => x.id === gdprClientId);
+  if (!c) return;
+  const clientOrders = orders.filter(o => o.clientId === gdprClientId);
+  if (!confirm(`CANCELLAZIONE DEFINITIVA — Art. 17 GDPR\n\nVerranno eliminati tutti i dati di:\n${c.nome} ${c.cognome}\n\n• Dati anagrafici\n• ${clientOrders.length} ordine/i\n\nQuesta operazione è irreversibile. Continuare?`)) return;
+  closeGdprModal();
+  deleteClient(gdprClientId);
+  toast('🗑 Dati eliminati su richiesta GDPR (art. 17)');
+}
+
+function openPrivacyPolicy() {
+  document.getElementById('privacyPolicyOverlay').classList.add('open');
+}
+function closePrivacyPolicy() {
+  document.getElementById('privacyPolicyOverlay').classList.remove('open');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+syncWithMagazzino();
+renderClientList();
+renderHeaderStats();
+checkDueSubscriptions();
+
+// Chiudi dropdown prodotti cliccando fuori
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.product-search-wrap')) {
+    document.getElementById('productDropdown').classList.remove('open');
+  }
+});
+setTimeout(backupReminder, 1500);
+document.getElementById('waMode').value = getWaMode();
+updateQueueBadge();
+document.getElementById('clientSort').value = getClientSort();
+</script>
+</body>
+</html>
